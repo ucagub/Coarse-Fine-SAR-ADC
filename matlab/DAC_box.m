@@ -1,4 +1,4 @@
-function msfuntmpl_basic(block)
+function DAC_box(block)
 %MSFUNTMPL_BASIC A Template for a Level-2 MATLAB S-Function
 %   The MATLAB S-function is written as a MATLAB function with the
 %   same name as the S-function. Replace 'msfuntmpl_basic' with the 
@@ -144,12 +144,13 @@ block.Dwork(1).Data = 0;
 %%   C-MEX counterpart: mdlOutputs
 %%
 function Outputs(block)
-if block.DialogPrm(1).Data == 1
-    block.OutputPort(1).Data = block.Dwork(1).Data + block.InputPort(1).Data + 1;
-else
-    block.OutputPort(1).Data = block.Dwork(1).Data + block.InputPort(1).Data + 6;
+switch block.DialogPrm(1).Data
+    case 1    
+        block.OutputPort(1).Data = Conventional_DAC(block.InputPort(1).Data);
+    otherwise
+        block.OutputPort(1).Data = block.Dwork(1).Data + block.InputPort(1).Data + 6;
 end
-Conventional_DAC(zeros(1,16));
+%Conventional_DAC(zeros(1,16));
 
 
 %end Outputs
