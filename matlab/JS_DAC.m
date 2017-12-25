@@ -28,9 +28,9 @@ function y = JS_DAC(u)
     %(fliplr(inCode(max_resolution-res+2:max_resolution))')
     Cref = sum(Cbuff(1:res-1,1:res-1)*(fliplr(inCode(max_resolution-res+2:max_resolution))'));
 
-    %y = (Cmin*(Sup*Cup' + Sdown*Cdown'))/Ctotal;
-    y = getRes(u, max_resolution);
-    %y = (Cref+1)/(2^res);
+    
+    %y = getRes(u, max_resolution);
+    y = (Cref+1)/(2^res);
 end
 function y = getRes(u, max_res)
     i = 2^(max_res - 1);
