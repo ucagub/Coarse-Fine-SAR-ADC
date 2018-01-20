@@ -1,9 +1,13 @@
-function y = CS_DAC(u)
+function y = CS_DAC_mismatch(u)
 %input : code in decimal format
 %output : output voltage for the input code
 %8 bit CS_DAC
-    Cup = [2^6 2^5 2^4 2^3 2^2 2^1 2^0 1];
-    Cdown = [2^6 2^5 2^4 2^3 2^2 2^1 2^0 1];
+    resolution = 8;
+    LSB = 1/2^resolution;
+    mu = 0;
+    sigma = LSB;
+    Cup = [2^6 2^5 2^4 2^3 2^2 2^1 2^0 1] + normrnd(mu,sigma,[1, resolution]);
+    Cdown = [2^6 2^5 2^4 2^3 2^2 2^1 2^0 1] + normrnd(mu,sigma,[1, resolution]);
     Carray = [Cup Cdown];
 
     Vref = 1;

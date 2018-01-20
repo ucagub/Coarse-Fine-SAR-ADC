@@ -1,7 +1,11 @@
-function y = CS_DAC(u)
+function y = CS_DAC_mismatch(u)
 %input : code in decimal format
 %output : output voltage for the input code
 %8 bit CS_DAC
+    resolution = 8;
+    LSB = 1/2^resolution;
+    mu = 0;
+    sigma = LSB
     Cup = [2^6 2^5 2^4 2^3 2^2 2^1 2^0 1];
     Cdown = [2^6 2^5 2^4 2^3 2^2 2^1 2^0 1];
     Carray = [Cup Cdown];
@@ -46,3 +50,5 @@ function y = CS_DAC(u)
     y = Vout;
     %y = Etotal;
 end
+
+plot(zeros(1,256))
