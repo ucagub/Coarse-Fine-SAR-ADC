@@ -1,8 +1,6 @@
-function y = CS_DAC(u)
 function y = CS_DAC(u, v)
 %usage : CS_DAC(input_code, resolution)
 
-    resolution = 4;
     resolution = v;
     inCode = de2bi(u,resolution);
     Cmin = 1e-15;
