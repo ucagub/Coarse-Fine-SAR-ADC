@@ -13,8 +13,7 @@ end
 function y = DNL(u, v)
 %DNL per step
 %usage : DNL(output_next_step, output_prev_step)
-    Vref = 1;
     N = 8;
-    LSB = Vref/2^N;
+    LSB = 
     y = ((u-v) - LSB)/LSB;
 end
