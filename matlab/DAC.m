@@ -2,6 +2,9 @@ classdef DAC
     properties (Access = public)
         type
         Vref
+        DNL;
+        abs_max_DNL
+        DNL_stdev
         %value
     end
     properties (Access = private)
@@ -14,6 +17,9 @@ classdef DAC
             obj.Vref = 1;
             %obj.value = randsd(1);
             [obj.Cupm , obj.Cdownm] = init_mismatch();
+            obj.DNL = get_DNL(obj);
+            obj.abs_max_DNL = max(abs(obj.DNL));
+            obj.DNL_stdev = sqrt(var(obj.DNL));
         end
 
         function y = eval(obj, Vin)

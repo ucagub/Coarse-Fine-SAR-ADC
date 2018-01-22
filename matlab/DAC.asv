@@ -1,6 +1,9 @@
 classdef DAC
     properties (Access = public)
         type
+        Vref
+        DNL;
+        abs_max_DNL
         %value
     end
     properties (Access = private)
@@ -10,12 +13,17 @@ classdef DAC
     methods
         function obj = DAC(name)
             obj.type = name;
+            obj.Vref = 1;
             %obj.value = randsd(1);
             [obj.Cupm , obj.Cdownm] = init_mismatch();
+            obj.DNL = get_DNL(obj);
+            obj.abs_max_DNL = max(abs(obj.))
         end
 
-        function y = eval(obj)
-            y = obj.type
+        function y = eval(obj, Vin)
+            [code_up, code_down] = getCode(Vin);
+            Vout = obj.Vref*(code_up*obj.Cupm' + code_down*obj.Cdownm')/sum(obj.Cupm+obj.Cdownm);
+            y = Vout;
         end
 
     end
@@ -52,14 +60,13 @@ end
 function [y, z] = getCode(u)
     %sets the cap arrangement for cap split
     Vin = (u);
+    %Vref = obj.Vref;
     Vref = 1;
     Vup = 256;
     Vdown = 0;
     code_up = [1 1 1 1 1 1 1 1];
     code_down = [0 0 0 0 0 0 0 0];
     for i = 1:8
-        code_cycle = [code_cycle (Vup+Vdown)/2];
-
         if Vin > (Vup+Vdown)/2
            Vdown = (Vup+Vdown)/2;
            code_down(i) = 1;
