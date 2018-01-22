@@ -6,7 +6,8 @@ classdef JS_DAC
         Ctup
         Ctdown
         Vouts
-        %DNL;
+        DNL
+        INL
         %abs_max_DNL
         %DNL_stdev
         %value
@@ -30,16 +31,17 @@ classdef JS_DAC
                           2 2 4 8 16 0 0; 
                           2 2 4 8 16 32 0; 
                           2 2 4 8 16 32 64];
-            obj.Ctup = add_mismatch(obj.Ctup);
-            obj.Ctdown = add_mismatch(obj.Ctdown);
-            
-            for a = 1:7
-                for b = 1:a
-                    obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
-                end
-            end
+%             obj.Ctup = add_mismatch(obj.Ctup);
+%             obj.Ctdown = add_mismatch(obj.Ctdown);
+%             
+%             for a = 1:7
+%                 for b = 1:a
+%                     obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
+%                 end
+%             end
             obj.Vouts = get_Vouts(obj);
-            %obj.DNL = get_DNL(obj);
+            obj.DNL = get_DNL(obj);
+            obj.INL = get_INL(obj);
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = sqrt(var(obj.DNL));
         end
@@ -54,6 +56,7 @@ classdef JS_DAC
             end
             y = Vout;
         end
+        
 
     end
     methods(Access = private)
@@ -89,7 +92,7 @@ function y = get_Vouts(obj)
         for j = 1:2^(i-1)
             code = de2bi(j-1,i-1,'left-msb');
             Cup = sum(obj.Carray(1:i-1,1:i-1)*code') + obj.Ctup;
-            Ctot = sum(sum(obj.Carray(1:i-1,1:i-1))) + (obj.Ctup + obj.Ctdown);
+            Ctot = sum(sum(obj.Carray(1:i-1,1:i-1))) + (obj.Ctup + obj.Ctdown)
             Vout = [Vout Cup/Ctot];
         end
     end
@@ -102,7 +105,7 @@ function y = add_mismatch(u)
     buff = u;
     Cap = 1e-15;
     Cu = 1*Cap;
-    sigma_Cu = 0.05;
+    sigma_Cu = 0.005;
 
     sigma = Cu*buff*sigma_Cu/sqrt(buff);
     buff = normrnd(Cu*buff,sigma);

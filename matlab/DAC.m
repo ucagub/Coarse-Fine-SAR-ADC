@@ -3,8 +3,8 @@ classdef DAC
         type
         Vref
         DNL;
-        abs_max_DNL
-        DNL_stdev
+        %abs_max_DNL
+        %DNL_stdev
         %value
     end
     properties (Access = private)
@@ -18,8 +18,8 @@ classdef DAC
             %obj.value = randsd(1);
             [obj.Cupm , obj.Cdownm] = init_mismatch();
             obj.DNL = get_DNL(obj);
-            obj.abs_max_DNL = max(abs(obj.DNL));
-            obj.DNL_stdev = sqrt(var(obj.DNL));
+            %obj.abs_max_DNL = max(abs(obj.DNL));
+            %obj.DNL_stdev = get_DNL_stdev()
         end
 
         function y = eval(obj, Vin)
@@ -81,4 +81,21 @@ function [y, z] = getCode(u)
     end
     y = code_up;
     z = code_down;
+end
+
+function y = get_DNL_stdev()
+    iter = 1000;
+    buff = zeros(iter, 255);
+    
+    for i = 1:iter
+        a = DAC('asfd');
+        buff(i,:) = a.DNL;
+    end
+    
+    code_var = zeros(1,255)
+    for i = 1:255
+        code_var(i) = var(buff(:,i));
+    end
+    code_stdev = sqrt(code_var);
+    y = code_stdev;
 end

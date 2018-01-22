@@ -5,7 +5,9 @@ classdef JS_DAC
         Carray
         Ctup
         Ctdown
-        %DNL;
+        Vouts
+        DNL
+        INL
         %abs_max_DNL
         %DNL_stdev
         %value
@@ -13,7 +15,7 @@ classdef JS_DAC
     properties (Access = private)
         Cupm
         Cdownm
-        Vouts
+        
     end
     methods
         function obj = JS_DAC(name)
@@ -29,20 +31,19 @@ classdef JS_DAC
                           2 2 4 8 16 0 0; 
                           2 2 4 8 16 32 0; 
                           2 2 4 8 16 32 64];
-            obj.Ctup = add_mismatch(obj.Ctup)
-            obj.Cdown = add_mismatch(obj.Cdown)
+            obj.Ctup = add_mismatch(obj.Ctup);
+            obj.Ctdown = add_mismatch(obj.Ctdown);
             
             for a = 1:7
-                for b = 1:7
+                for b = 1:a
                     obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
                 end
             end
-            init_mismatch(obj)
-            obj.Ctdown = 2;
             obj.Vouts = get_Vouts(obj);
-            %obj.DNL = get_DNL(obj);
+            obj.DNL = get_DNL(obj);
+            obj.INL = get_INL(obj);
             %obj.abs_max_DNL = max(abs(obj.DNL));
-            %obj.DNL_stdev = sqrt(var(obj.DNL));
+            obj.DNL_stdev = sqrt(var(obj.DNL));
         end
 
         function y = eval(obj, Vin)
@@ -51,16 +52,18 @@ classdef JS_DAC
             elseif Vin == 256
                 Vout = 1;
             else
-                Vout = obj.Vouts(Vin)
+                Vout = obj.Vouts(Vin);
             end
             y = Vout;
         end
+        
 
     end
     methods(Access = private)
         function init_mismatch(obj)
             obj.Ctdown = 2;
-            Cap = 1e-15;
+            %Cap = 1e-6;
+            Cap = 1;
             Cu = 1*Cap;
             sigma_Cu = 0.05;
 
@@ -77,34 +80,35 @@ classdef JS_DAC
                 end
             end
         end
-        function y = add_mismatch(u)
-            u = buff;
-            Cap = 1e-15;
-            Cu = 1*Cap;
-            sigma_Cu = 0.05;
-            
-            sigma = Cu*buff*sigma_Cu/sqrt(buff);
-            buff = normrnd(Cu*buff,sigma);
-            y = buff;
-        end
     end
 end
 
 function y = get_Vouts(obj)
 
     buff = zeros(8,8);
-    Vout = [0.5];
+    Vout = [obj.Ctup/(obj.Ctup + obj.Ctdown)];
 
     for i = 2:8
         for j = 1:2^(i-1)
             code = de2bi(j-1,i-1,'left-msb');
-            Cup = sum(obj.Carray(1:i-1,1:i-1)*code') + 1;
-            Ctot = sum(sum(obj.Carray(1:i-1,1:i-1))) + 2;
+            Cup = sum(obj.Carray(1:i-1,1:i-1)*code') + obj.Ctup;
+            Ctot = sum(sum(obj.Carray(1:i-1,1:i-1))) + (obj.Ctup + obj.Ctdown);
             Vout = [Vout Cup/Ctot];
         end
     end
 
     Vout = sort(Vout);
     y = Vout;
+end
+
+function y = add_mismatch(u)
+    buff = u;
+    Cap = 1e-15;
+    Cu = 1*Cap;
+    sigma_Cu = 0.005;
+
+    sigma = Cu*buff*sigma_Cu/sqrt(buff);
+    buff = normrnd(Cu*buff,sigma);
+    y = buff;
 end
 
