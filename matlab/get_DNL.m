@@ -1,11 +1,11 @@
 function y = get_DNL(DAC)
-%usage : get_DNL(@DAC) where DAC is the DAC function name
+%usage : get_DNL(DAC) where DAC is the DAC object
 %returns an array containing the DNL
     dnl = [];
     prev = 0;
     for i = 1:255
-        dnl = [dnl DNL(DAC(i), prev)];
-        prev = DAC(i);
+        dnl = [dnl DNL(DAC.eval(i), prev)];
+        prev = DAC.eval(i);
     end
     y = dnl;
 end
