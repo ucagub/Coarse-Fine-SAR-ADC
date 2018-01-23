@@ -26,19 +26,19 @@ classdef JS_DAC
             obj.Ctdown = 1;
             obj.Carray = [2 0 0 0 0 0 0; 
                           2 2 0 0 0 0 0; 
-                          2 2 4 0 0 0 0;
-                          2 2 4 8 0 0 0; 
-                          2 2 4 8 16 0 0; 
-                          2 2 4 8 16 32 0; 
-                          2 2 4 8 16 32 64];
-%             obj.Ctup = add_mismatch(obj.Ctup);
-%             obj.Ctdown = add_mismatch(obj.Ctdown);
-%             
-%             for a = 1:7
-%                 for b = 1:a
-%                     obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
-%                 end
-%             end
+                          4 2 2 0 0 0 0;
+                          8 4 2 2 0 0 0; 
+                          16 8 4 2 2 0 0; 
+                          32 16 8 4 2 2 0; 
+                          64 32 16 8 4 2 2];
+            obj.Ctup = add_mismatch(obj.Ctup);
+            obj.Ctdown = add_mismatch(obj.Ctdown);
+            
+            for a = 1:7
+                for b = 1:a
+                    obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
+                end
+            end
             obj.Vouts = get_Vouts(obj);
             obj.DNL = get_DNL(obj);
             obj.INL = get_INL(obj);
