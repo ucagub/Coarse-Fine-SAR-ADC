@@ -118,14 +118,23 @@ function Ecycle = get_Ecycle(obj, Vin)
     Etotal = 0;
     Vref = 1;
     codeCycle = get_codeCycle(Vin);
-    %get Vf 
-    Varray_final = get_Varray_final(codeCycle(1));
+    %get Vf given code
+    
     for i = 2:8
-        Varray_final = 
-        Etran = -Vref*sum(sum(obj.Carray.*(Varray_final-Varray_init)));
+        Varray_final = get_Varray(obj, codeCycle(i));
+        CV_array = obj.Carray.*(Varray_final-Varray_init)
+        Etran = -Vref*sum(sum(CV_array(1:i-1, 1:i-1)));
         Etotal = Etotal + Etran; 
+        Varray_init = Varray_final;
     end
     Ecycle = Etotal;
+end
+
+function Varray_final = get_Varray(obj, code)
+    Varray_buff = zeros(7,7);
+    config = de2bi(code,7,'left-msb');
+    Vx = obj.eval(code);
+    
 end
 
 function codeCycle = get_codeCycle(Vin)
