@@ -31,6 +31,7 @@ classdef JS_DAC
                           16 8 4 2 2 0 0; 
                           32 16 8 4 2 2 0; 
                           64 32 16 8 4 2 2];
+            
             obj.Ctup = add_mismatch(obj.Ctup);
             obj.Ctdown = add_mismatch(obj.Ctdown);
             
@@ -110,5 +111,40 @@ function y = add_mismatch(u)
     sigma = Cu*buff*sigma_Cu/sqrt(buff);
     buff = normrnd(Cu*buff,sigma);
     y = buff;
+end
+
+function Ecycle = get_Ecycle(obj, Vin)
+    Varray_init = zeros(7,7);
+    Etotal = 0;
+    Vref = 1;
+    codeCycle = get_codeCycle(Vin);
+    %get Vf given code
+    
+    for i = 2:8
+        Varray_final = get_Varray(codeCycle(i)); 
+        Etran = -Vref*sum(sum(obj.Carray.*(Varray_final-Varray_init)));
+        Etotal = Etotal + Etran; 
+    end
+    Ecycle = Etotal;
+end
+
+function Varray_final = get_Varray(code)
+
+end
+
+function codeCycle = get_codeCycle(Vin)
+    Vup = 256;
+    Vdown = 0;
+    
+    code_Cycle = [];
+    for i = 1:8
+        if Vin >= (Vup+Vdown)/2
+           Vdown = (Vup+Vdown)/2;
+           codeCycle = [codeCycle (Vup+Vdown)/2];
+        else
+           Vup = (Vup+Vdown)/2;
+           codeCycle = [codeCycle (Vup+Vdown)/2];
+        end 
+    end
 end
 
