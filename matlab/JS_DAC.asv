@@ -28,22 +28,23 @@ classdef JS_DAC
                           2 2 0 0 0 0 0; 
                           4 2 2 0 0 0 0;
                           8 4 2 2 0 0 0; 
-                          16 2 2 4 8 16 0 0; 
-                          2 2 4 8 16 32 0; 
-                          2 2 4 8 16 32 64];
-%             obj.Ctup = add_mismatch(obj.Ctup);
-%             obj.Ctdown = add_mismatch(obj.Ctdown);
-%             
-%             for a = 1:7
-%                 for b = 1:a
-%                     obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
-%                 end
-%             end
+                          16 8 4 2 2 0 0; 
+                          32 16 8 4 2 2 0; 
+                          64 32 16 8 4 2 2];
+            obj.Ctup = add_mismatch(obj.Ctup);
+            obj.Ctdown = add_mismatch(obj.Ctdown);
+            
+            for a = 1:7
+                for b = 1:a
+                    obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
+                end
+            end
             obj.Vouts = get_Vouts(obj);
             obj.DNL = get_DNL(obj);
             obj.INL = get_INL(obj);
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = sqrt(var(obj.DNL));
+            get_Energy_code(obj, 128)
         end
 
         function y = eval(obj, Vin)
@@ -55,30 +56,6 @@ classdef JS_DAC
                 Vout = obj.Vouts(Vin);
             end
             y = Vout;
-        end
-        
-
-    end
-    methods(Access = private)
-        function init_mismatch(obj)
-            obj.Ctdown = 2;
-            %Cap = 1e-6;
-            Cap = 1;
-            Cu = 1*Cap;
-            sigma_Cu = 0.05;
-
-            sigma = Cu*obj.Ctup*sigma_Cu/sqrt(obj.Ctup);
-            obj.Ctup = normrnd(Cu*obj.Ctup,sigma);
-
-            sigma = Cu*obj.Ctdown*sigma_Cu/sqrt(obj.Ctdown);
-            obj.Ctdown = normrnd(Cu*obj.Ctdown,sigma);
-
-            for a = 1:7
-                for b = 1:7
-                    sigma = Cu*obj.Carray(a,b)*sigma_Cu/sqrt(obj.Carray(a,b));
-                    obj.Carray(a,b) = normrnd(Cu*obj.Carray(a,b),sigma);
-                end
-            end
         end
     end
 end
@@ -92,7 +69,7 @@ function y = get_Vouts(obj)
         for j = 1:2^(i-1)
             code = de2bi(j-1,i-1,'left-msb');
             Cup = sum(obj.Carray(1:i-1,1:i-1)*code') + obj.Ctup;
-            Ctot = sum(sum(obj.Carray(1:i-1,1:i-1))) + (obj.Ctup + obj.Ctdown)
+            Ctot = sum(sum(obj.Carray(1:i-1,1:i-1))) + (obj.Ctup + obj.Ctdown);
             Vout = [Vout Cup/Ctot];
         end
     end
@@ -110,5 +87,49 @@ function y = add_mismatch(u)
     sigma = Cu*buff*sigma_Cu/sqrt(buff);
     buff = normrnd(Cu*buff,sigma);
     y = buff;
+end
+
+function y = get_Energy_code(obj, Vin)
+    
+    Etotal = 0;
+    Vref = 1;
+    Vup = 256;
+    Vdown = 0;
+    code = zeros(1,7);
+    if Vin >= (Vup+Vdown)/2
+       Vdown = (Vup+Vdown)/2;       
+       code(1) = 1;
+    else 
+       Vup = (Vup+Vdown)/2;
+       code(1) = 0;
+    end
+        
+    Vi = zeros(7,7);
+    for i = 1:7
+        if Vin >= (Vup+Vdown)/2
+           Vdown = (Vup+Vdown)/2;
+           code(i) = 1; 
+        else 
+           Vup = (Vup+Vdown)/2;
+           code(i) = 0; 
+        end 
+        Vx = obj.eval((Vup+Vdown)/2);
+        for k = 1:i
+            for l = 1:i
+                if code(l) == 1
+                    Vf(k,l) = Vx - Vref;
+                else
+                    Vf(k,l) = Vx;
+                end
+            end
+        end
+       
+        Ecycle = -Vref*sum(sum((obj.Carray.*(Vf-Vi))));
+        Etotal = Etotal + Ecycle;
+
+        Vi = Vf;
+    end
+    Etotal
+    y = Etotal;
 end
 
