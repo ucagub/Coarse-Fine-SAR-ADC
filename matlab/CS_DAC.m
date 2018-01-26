@@ -20,16 +20,7 @@ function y = CS_DAC(u)
     for i = 1:8
         Vout = Vref*(code_up*Cup' + code_down*Cdown')/(2^8);
         code_cycle = [code_cycle (Vup+Vdown)/2];
-
-        %Vcap_up = Vout - code_up*Vref;
-        %Vcap_down = Vout - code_down*Vref;
-        %Vf = [Vcap_up Vcap_down];
-        %Vf.*[code_up code_down];
-
-        %Ecycle = -Vref*(Carray*((Vf-Vi).*[code_up code_down])');
-        %Etotal = Etotal + Ecycle;
-
-        %Vi = Vf;
+        
         if Vin > (Vup+Vdown)/2
            Vdown = (Vup+Vdown)/2;
            code_down(i) = 1;
