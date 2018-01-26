@@ -130,6 +130,7 @@ function Ecycle = get_Ecycle1(obj, Vin)
     
     for i = 2:8
         Varray_final = get_Varray(obj, codeCycle(i));
+        %Varray_final = get_Varray(obj, i);
         CV_array = obj.Carray.*(Varray_final-Varray_init);
         Etran = -Vref*sum(sum(CV_array(1:i-1, 1:i-1)));
         Etotal = Etotal + Etran; 
@@ -141,8 +142,9 @@ end
 function Varray_final = get_Varray(obj, code)
     Vref = 1;
     Varray_buff = zeros(7,7);
-    config = de2bi(8,8,'left-msb');
+    config = de2bi(code,8,'left-msb');
     Vx = obj.eval(code);
+    
     V1d = (Vx - Vref*config);
     for i = 1:7
         Varray_buff(:,i) = V1d(i);
@@ -155,8 +157,8 @@ function codeCycle = get_codeCycle(Vin)
     Vup = 256;
     Vdown = 0;
     
-    code_buff = [];
-    for i = 1:8
+    code_buff = [128];
+    for i = 1:7
         if Vin >= (Vup+Vdown)/2
            Vdown = (Vup+Vdown)/2;
            code_buff = [code_buff (Vup+Vdown)/2];
