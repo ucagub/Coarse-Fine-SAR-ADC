@@ -3,6 +3,7 @@ classdef Conv_DAC
         type
         Vref
         DNL
+        INL
         Carray
         %abs_max_DNL
         %DNL_stdev
@@ -21,6 +22,7 @@ classdef Conv_DAC
                 obj.Carray(i) = add_mismatch(obj.Carray(i)); 
             end
             obj.DNL = get_DNL(obj);
+            obj.INL = get_INL(obj);
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = get_DNL_stdev()
         end
