@@ -1,9 +1,9 @@
-function [c,ceq] = power_constraint(x)
+function [c,ceq] = power_constraint(x, k, N)
     %comparator power constraint
     Vref = 1;
-    N = 10;
-    k = 7;
-    Plsb = 1e-9;
+    %N = 8;
+    %k = 2;
+    Plsb = 1e-6;
     Pbudget = 175*Plsb;
     lsb = Vref/2^N;
     
