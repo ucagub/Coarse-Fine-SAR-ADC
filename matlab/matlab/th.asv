@@ -1,0 +1,59 @@
+N               = 8;
+f_sampling      = 1000000000;
+f_input         = 500;
+f_clk           = 100e3;
+Vdd             = 1;
+clock_duty      = 50;
+droop           = 1e-3;
+
+time            = 10/f_input;   
+hold_value      = 0;
+hold_counter    = 0;
+
+
+
+
+
+W   = 1e-6;
+Lov = 20e-9;
+Cox = 14.448e-3;
+Vth = 0.5;
+Ch  = 1e-12;
+bs  = 0.99;
+
+output  = zeros(1,time*f_sampling + 1);
+t       = [0: 1/f_sampling: time];
+input   = 0.5*(sin(2*pi*f_input*t)+1);
+clk     = .5*(square(2*pi*f_clk*t,clock_duty)+1);
+
+error_cci   = model_cci(W,L,Cox,Vth,Ch,Xfrac,bs,Vdd) / (2^N);
+error_cf    = model_cf(W,Lov,Cox,Vth,Ch,bs,Vdd)  / (2^N);
+
+for k = 1:length(t);
+   if clk(k) == 1
+       output(k) =  input(k);
+       hold_value = input(k);
+       hold_counter = 0;
+   else
+       hold_counter = hold_counter + 1/f_sampling;
+%        if hold_value-hold_counter*leakage > 0
+%            output(k) = hold_value-hold_counter*leakage;
+%        else
+%            output(k) = 0;
+%        end
+
+       if hold_value + error_cci + error_cf - hold_counter*droop*(1/f_sampling)/Ch > 0
+           output(k) = hold_value + error_cci + error_cf - hold_counter*droop*(1/f_sampling)/Ch ;
+       
+   end
+end
+
+figure;
+hold on;
+plot(t,output);
+%plot(t,input);
+%plot(t,clk);
+hold off;
+figure;
+sinad(output, f_input);
+
