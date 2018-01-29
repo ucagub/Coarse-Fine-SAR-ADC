@@ -33,15 +33,15 @@ classdef JS_DAC
                           32 16 8 4 2 2 0; 
                           64 32 16 8 4 2 2];
             
-            obj.Ctup = add_mismatch(obj.Ctup);
-            obj.Ctdown = add_mismatch(obj.Ctdown);
-            
-            %add mismatch to every cap in obj.Carray
-            for a = 1:7
-                for b = 1:a
-                    obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
-                end
-            end
+%             obj.Ctup = add_mismatch(obj.Ctup);
+%             obj.Ctdown = add_mismatch(obj.Ctdown);
+%             
+%             %add mismatch to every cap in obj.Carray
+%             for a = 1:7
+%                 for b = 1:a
+%                     obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
+%                 end
+%             end
             
             %get every possible output of the DAC, store as array in
             %obj.Vouts
