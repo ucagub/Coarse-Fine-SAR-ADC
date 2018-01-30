@@ -28,6 +28,12 @@ for i = 1:255
     DNL_mean = [DNL_mean mean(dnls(:,i))];
 end
 
+figure;
 plot(DNL_var);
-hold on;
+xlabel('Output Code');
+ylabel('DNL variance');
+
+figure;
 plot(INL_var);
+xlabel('Output Code');
+ylabel('INL variance');

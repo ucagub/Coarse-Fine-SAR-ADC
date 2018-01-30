@@ -6,6 +6,10 @@ for i = 0:255
     %powerCS = [powerCS CS_power(i)];
 end
 
+average = mean(power).*ones(1,256);
 plot(power);
+hold on;
+plot(average);
+xlabel('Output Code');
 % hold on;
 % plot(powerCS);
