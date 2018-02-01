@@ -1,4 +1,5 @@
 classdef JS_DAC
+    %usage : obj = JS_DAC(N, varargin)
     properties (Access = public)
         type
         Vref
@@ -9,39 +10,40 @@ classdef JS_DAC
         DNL
         INL
         Epercycle
+        res
+        Emean
         %abs_max_DNL
         %DNL_stdev
         %value
     end
-    properties (Access = private)
-        Cupm
-        Cdownm
-        
-    end
     methods
-        function obj = JS_DAC(name)
-            obj.type = name;
+        function obj = JS_DAC(N, varargin)
+            switch nargin
+                case 1
+                    obj.res = N;
+            end
+            
             obj.Vref = 1;
             %obj.value = randsd(1);
             obj.Ctup = 1;
             obj.Ctdown = 1;
-            obj.Carray = [2 0 0 0 0 0 0; 
-                          2 2 0 0 0 0 0; 
-                          4 2 2 0 0 0 0;
-                          8 4 2 2 0 0 0; 
-                          16 8 4 2 2 0 0; 
-                          32 16 8 4 2 2 0; 
-                          64 32 16 8 4 2 2];
-            
-%             obj.Ctup = add_mismatch(obj.Ctup);
-%             obj.Ctdown = add_mismatch(obj.Ctdown);
-%             
-%             %add mismatch to every cap in obj.Carray
-%             for a = 1:7
-%                 for b = 1:a
-%                     obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
-%                 end
-%             end
+            buff = [2 0 0 0 0 0 0; 
+                    2 2 0 0 0 0 0; 
+                    4 2 2 0 0 0 0;
+                    8 4 2 2 0 0 0; 
+                    16 8 4 2 2 0 0; 
+                    32 16 8 4 2 2 0; 
+                    64 32 16 8 4 2 2];
+            obj.Carray = buff(1:obj.res-1,1:obj.res-1);
+            obj.Ctup = add_mismatch(obj.Ctup);
+            obj.Ctdown = add_mismatch(obj.Ctdown);
+
+            %add mismatch to every cap in obj.Carray
+            for a = 1:obj.res-1
+                for b = 1:a
+                    obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
+                end
+            end
             
             %get every possible output of the DAC, store as array in
             %obj.Vouts
@@ -53,7 +55,7 @@ classdef JS_DAC
             
             %get energy per code
             obj.Epercycle = get_Epercycle(obj);
-            
+            obj.Emean = mean(obj.Epercycle);
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = sqrt(var(obj.DNL));
         end
@@ -61,7 +63,7 @@ classdef JS_DAC
         function y = eval(obj, Vin)
             if Vin == 0
                 Vout = 0;
-            elseif Vin == 256
+            elseif Vin == 2^obj.res
                 Vout = 1;
             else
                 Vout = obj.Vouts(Vin);
@@ -78,11 +80,11 @@ classdef JS_DAC
 end
 
 function y = get_Vouts(obj)
-
-    buff = zeros(8,8);
+    N = obj.res;
+    %buff = zeros(N,N);
     Vout = [obj.Ctup/(obj.Ctup + obj.Ctdown)];
 
-    for i = 2:8
+    for i = 2:N
         for j = 1:2^(i-1)
             code = de2bi(j-1,i-1,'left-msb');
             Cup = sum(obj.Carray(1:i-1,1:i-1)*code') + obj.Ctup;
@@ -109,8 +111,10 @@ end
 function y = get_Epercycle(obj)
     %returns the energy required to search for every possible quantization 
     %of input Vin for the SAR ADC
-    Epercycle = zeros(1,255);
-    for i = 1:255
+    N = obj.res;
+    Epercycle = zeros(1,2^N-1);
+    
+    for i = 1:2^N-1
         Epercycle(i) = get_Ecycle1(obj, i);
     end
     y = Epercycle;
@@ -118,15 +122,16 @@ end
 
 function Ecycle = get_Ecycle1(obj, Vin)
     %returns the total energy after 8 cycles to search for Vin
-    Varray_init = zeros(7,7);
+    N = obj.res;
+    Varray_init = zeros(N-1,N-1);
     Etotal = 0;
     Vref = 1;
-    codeCycle = get_codeCycle(Vin);
+    codeCycle = get_codeCycle(Vin, N);
     Vter_i = Vref*obj.Ctup/(obj.Ctup + obj.Ctdown) - Vref;
     
-    for i = 2:8
+    for i = 2:N
         code = codeCycle(i);
-        config = de2bi(code,8,'left-msb');
+        config = de2bi(code,N,'left-msb');
         %Vter is for the termination cap
         %energy for the termination cap
         Vx = obj.eval(code);
@@ -156,9 +161,10 @@ end
 
 function Varray_final = get_Varray(obj, code, stage_num)
     %returns the voltage for each cap at the given output code
+    N = obj.res;
     Vref = 1;
     Varray_buff = zeros(stage_num-1,stage_num-1);
-    config = de2bi(code,8,'left-msb');
+    config = de2bi(code,N,'left-msb');
     %config
     Vx = obj.eval(code);
     
@@ -166,17 +172,18 @@ function Varray_final = get_Varray(obj, code, stage_num)
     for i = 1:stage_num-1
         Varray_buff(:,i) = V1d(i);
     end
-    Varray_final = padarray(Varray_buff, [8-stage_num, 8-stage_num], 'post');
+    Varray_final = padarray(Varray_buff, [N-stage_num, N-stage_num], 'post');
     
 end
 
-function codeCycle = get_codeCycle(Vin)
-    %returns the sequence of codes in the binary search
-    Vup = 256;
+function codeCycle = get_codeCycle(Vin, N)
+    %returns the sequence of codes in the binary search 
+    %inputs : code Vin and resolution N
+    Vup = 2^N;
     Vdown = 0;
     
-    code_buff = [128];
-    for i = 1:7
+    code_buff = [2^(N-1)];
+    for i = 1:N-1
         if Vin >= (Vup+Vdown)/2
            Vdown = (Vup+Vdown)/2;
            code_buff = [code_buff (Vup+Vdown)/2];

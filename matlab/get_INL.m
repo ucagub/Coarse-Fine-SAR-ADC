@@ -1,7 +1,7 @@
 function y = get_INL(DAC)
 %usage : get_INL(@DAC) where DAC is the DAC function name
 %returns an array containing the INL
-    res = 8; %resolution
+    res = DAC.res; %resolution
     dnl = get_DNL(DAC);
     inl = [];
     for i = 1:2^res-1;
