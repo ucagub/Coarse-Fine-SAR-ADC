@@ -35,15 +35,15 @@ classdef JS_DAC
                     32 16 8 4 2 2 0; 
                     64 32 16 8 4 2 2];
             obj.Carray = buff(1:obj.res-1,1:obj.res-1);
-            obj.Ctup = add_mismatch(obj.Ctup);
-            obj.Ctdown = add_mismatch(obj.Ctdown);
-
-            %add mismatch to every cap in obj.Carray
-            for a = 1:obj.res-1
-                for b = 1:a
-                    obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
-                end
-            end
+%             obj.Ctup = add_mismatch(obj.Ctup);
+%             obj.Ctdown = add_mismatch(obj.Ctdown);
+% 
+%             %add mismatch to every cap in obj.Carray
+%             for a = 1:obj.res-1
+%                 for b = 1:a
+%                     obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
+%                 end
+%             end
             
             %get every possible output of the DAC, store as array in
             %obj.Vouts
@@ -54,8 +54,10 @@ classdef JS_DAC
             obj.INL = get_INL(obj);
             
             %get energy per code
-            obj.Epercycle = get_Epercycle(obj);
-            obj.Emean = mean(obj.Epercycle);
+            %obj.Epercycle = get_Epercycle_skip(obj);
+            %obj.Epercycle = get_Epercycle(obj);
+            %obj.Emean = mean(obj.Epercycle);
+            get_Ecycle1_skip(obj, 129, 6)
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = sqrt(var(obj.DNL));
         end
@@ -141,6 +143,58 @@ function Ecycle = get_Ecycle1(obj, Vin)
         
         %energy for the rest of the Carray
         Varray_final = get_Varray(obj, code, i);
+        
+        dV = Varray_final-Varray_init;
+        %Varray_final = get_Varray(obj, i);
+        CV_array = (obj.Carray.*(dV));
+        CV_array = CV_array(1:i-1, 1:i-1);
+        config = config(1:i-1);
+        buff_array = -Vref*(CV_array.*config);
+        Etran = sum(sum(buff_array));
+        Etotal = Etotal + Etran + Eter; 
+        Varray_init = Varray_final;
+    end
+    
+    %energy contribution of the termination cap
+    
+    
+    Ecycle = Etotal;
+end
+
+function y = get_Epercycle_skip(obj)
+    %returns the energy required to search for every possible quantization 
+    %of input Vin for the SAR ADC
+    N = obj.res;
+    Epercycle = zeros(1,2^N-1);
+    skip_bits = 5;
+    
+    for i = 1:2^N-1
+        Epercycle(i) = get_Ecycle1_skip(obj, i, skip_bits);
+    end
+    y = Epercycle;
+end
+
+function Ecycle = get_Ecycle1_skip(obj, Vin, skip_bits)
+    %returns the total energy after 8 cycles to search for Vin
+    N = obj.res;
+    Varray_init = zeros(N-1,N-1)
+    Etotal = 0;
+    Vref = 1;
+    codeCycle = get_codeCycle(Vin, N);
+    Vter_i = Vref*obj.Ctup/(obj.Ctup + obj.Ctdown) - Vref;
+    
+    for i = skip_bits+1:N
+        code = codeCycle(i);
+        config = de2bi(code,N,'left-msb');
+        %Vter is for the termination cap
+        %energy for the termination cap
+        Vx = obj.eval(code);
+        Vter_f = Vx - Vref;
+        Eter  = -Vref*obj.Ctup*(Vter_f - Vter_i);
+        Vter_i = Vter_f;
+        
+        %energy for the rest of the Carray
+        Varray_final = get_Varray(obj, code, i)
         
         dV = Varray_final-Varray_init;
         %Varray_final = get_Varray(obj, i);
