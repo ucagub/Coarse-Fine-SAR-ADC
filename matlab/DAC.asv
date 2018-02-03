@@ -11,7 +11,6 @@ classdef DAC
         %value
         Cupm
         Cdownm
-        mismatch
     end
     properties (Access = private)
 %         Cupm
@@ -22,10 +21,8 @@ classdef DAC
             switch nargin
                 case 1
                     obj.res = N;
-                    obj.mismatch = 0;
                 case 2
-                    obj.res = N
-                    obj.mismatch = varargin{1};
+                    obj.
             end
             obj.Vref = 1;
             %obj.value = randsd(1);
@@ -62,21 +59,18 @@ function [y, z] = init_mismatch(obj)
     
     
     %add mismatch to caps
-    for i = 1:length(Cupm)
-        Cupm(i) = add_mismatch(obj.mismatch, Cupm(i)); 
-        Cdownm(i) = add_mismatch(obj.mismatch, Cdownm(i));
-    end
-%     Cupm = arrayfun(@add_mismatch, Cupm);
-%     Cdownm = arrayfun(@add_mismatch, Cdownm);
+    Cupm = arrayfun(@add_mismatch, Cupm);
+    Cdownm = arrayfun(@add_mismatch, Cdownm);
     y = Cupm;
     z = Cdownm;
 end 
 
-function y = add_mismatch(sigma_Cu, u)
+function y = add_mismatch(u)
     buff = u;
     Cap = 1e-15;
     Cu = 1*Cap;
-    
+    sigma_Cu = 0.00;
+
     sigma = Cu*buff*sigma_Cu/sqrt(buff);
     buff = normrnd(Cu*buff,sigma);
     y = buff;

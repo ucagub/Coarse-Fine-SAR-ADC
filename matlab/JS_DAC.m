@@ -35,15 +35,15 @@ classdef JS_DAC
                     32 16 8 4 2 2 0; 
                     64 32 16 8 4 2 2];
             obj.Carray = buff(1:obj.res-1,1:obj.res-1);
-%             obj.Ctup = add_mismatch(obj.Ctup);
-%             obj.Ctdown = add_mismatch(obj.Ctdown);
-% 
-%             %add mismatch to every cap in obj.Carray
-%             for a = 1:obj.res-1
-%                 for b = 1:a
-%                     obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
-%                 end
-%             end
+            obj.Ctup = add_mismatch(obj.Ctup);
+            obj.Ctdown = add_mismatch(obj.Ctdown);
+
+            %add mismatch to every cap in obj.Carray
+            for a = 1:obj.res-1
+                for b = 1:a
+                    obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
+                end
+            end
             
             %get every possible output of the DAC, store as array in
             %obj.Vouts
@@ -57,7 +57,7 @@ classdef JS_DAC
             %obj.Epercycle = get_Epercycle_skip(obj);
             %obj.Epercycle = get_Epercycle(obj);
             %obj.Emean = mean(obj.Epercycle);
-            get_Ecycle1_skip(obj, 129, 6)
+            %get_Ecycle1_skip(obj, 129, 6)
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = sqrt(var(obj.DNL));
         end
