@@ -22,7 +22,11 @@ function output = get_ENOB(iter, res, dac_type, mismatch)
         ENOB = (b-1.76)/6.02;
         buff(j) = ENOB;
     end
-    h = histogram(buff, 'Normalization', 'pdf')
+    figure('Name', [int2str(res) '_' dac_type '_' num2str(mismatch)]);
+    h = histogram(buff, 'Normalization', 'pdf');
+    xlabel('ENOB');
+    ylabel('pdf');
+    savefig(['ENOB_hist/' int2str(res) '_' dac_type '_' num2str(mismatch) '.fig']);
     left_edge = find(h.Values == max(h.Values));
     output = mean(h.BinEdges(left_edge:left_edge+1));
 end

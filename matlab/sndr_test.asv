@@ -1,28 +1,25 @@
-tic
-iter = 2e2;
-buff = zeros(1,iter);
-parfor j = 1:iter
-    %dac = DAC(8);
-    adc = ADC(8, 'CS_DAC', 0.05);
-    fs = 3.15e4;
-    f0 = 5e2;
-    N = 1024*2;
-    t = (0:N-1)/fs;
-
-    y = 0.5*sin(2*pi*f0*t) + 0.5;
-    z = zeros(1, length(y));
-    for i = 1:length(y)
-        z(i) = adc.quantizer(y(i));
-    end
-    %sinad(z,fs)
-    b = sinad(z,fs);
-    ENOB = (b-1.76)/6.02;
-    buff(j) = ENOB;
+ENOB = [];
+mismatch = [];
+iter = 1e3;
+for j  = 0.01:0.01:0.1 
     j
+    tic
+    %iter = 1e1;
+    ENOB = [ENOB get_ENOB(iter, 8, 'CS_DAC', j)];
+    mismatch = [mismatch j];
+    toc
 end
-buff
-h = histogram(buff, 'Normalization', 'pdf');
-left_edge = find(h.Values == max(h.Values));
-h.BinEdges(left_edge:left_edge+1)
-%histogram(buff, 10)
-toc
+
+for i  = 0.2:0.5:0.5 
+    i
+    tic
+    %iter = 1e1;
+    ENOB = [ENOB get_ENOB(iter, 8, 'CS_DAC', i)];
+    mismatch = [mismatch i];
+    toc
+end
+figure('Name', 'ENOBvsMismatch_8bit')
+plot(mismatch, ENOB)
+xlabel('mismatch');
+ylabel('ENOB');
+savefig('ENOB_hist/ENOBvsMismatch_8bit.fig');
