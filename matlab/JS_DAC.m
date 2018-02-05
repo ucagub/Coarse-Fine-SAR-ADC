@@ -22,6 +22,7 @@ classdef JS_DAC
             switch nargin
                 case 1
                     obj.res = N;
+                    obj.mismatch = 0;
                 case 2
                     obj.res = N;
                     obj.mismatch = varargin{1};

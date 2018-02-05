@@ -5,17 +5,18 @@ function y = get_DNL(DAC)
     dnl = [];
     prev = 0;
     for i = 1:2^N-1
-        dnl = [dnl DNL(DAC.eval(i), prev, N)];
+        dnl = [dnl DNL(DAC.eval(i), prev, DAC)];
         prev = DAC.eval(i);
     end
     y = dnl;
 end
 
-function y = DNL(u, v, N)
+function y = DNL(u, v, DAC)
 %DNL per step
 %usage : DNL(output_next_step, output_prev_step, N)
 %N is resolution
+    N = DAC.res;
     Vref = 1;
-    LSB = Vref/2^N;
+    LSB = (DAC.eval(2^N-1)-DAC.eval(0))/2^N-1;
     y = ((u-v) - LSB)/LSB;
 end

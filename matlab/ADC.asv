@@ -32,7 +32,7 @@ classdef ADC
                 case 3
                     %(N = resolution, dac_type, mismatch)
                     obj.k = 8;
-                    obj.fine_dac_type = varargin{1};
+                    bj.fine_dac_type = varargin{1};
                     obj.coarse_dac_type = 'NONE';
                     if strcmp(obj.fine_dac_type, 'CS_DAC')
                         obj.fine_dac = DAC(N, varargin{2});
@@ -76,7 +76,6 @@ classdef ADC
             Vup = 2^N;
             Vdown = 0;
             buff_out = zeros(1,N);
-            %fine quantization
             for i = 1:obj.k
                 if Vin > obj.fine_dac.eval((Vup+Vdown)/2)
                     Vdown = (Vup+Vdown)/2;
@@ -86,17 +85,15 @@ classdef ADC
                     buff_out(i) = 0;
                 end 
             end
-            %coarse quantization
-            if obj.k < N
-                for j = obj.k+1:N
-                    if Vin > obj.fine_dac.eval((Vup+Vdown)/2)
-                        Vdown = (Vup+Vdown)/2;
-                        buff_out(j) = 1;
-                    else
-                        Vup = (Vup+Vdown)/2;
-                        buff_out(j) = 0;
-                    end 
-                end
+            
+            for j = obj.k+1:N
+                if Vin > obj.coarse_dac.eval((Vup+Vdown)/2)
+                    Vdown = (Vup+Vdown)/2;
+                    buff_out(i) = 1;
+                else
+                    Vup = (Vup+Vdown)/2;
+                    buff_out(i) = 0;
+                end 
             end
             
             y = Vref*bi2de(buff_out, 'left-msb')/(2^N);
