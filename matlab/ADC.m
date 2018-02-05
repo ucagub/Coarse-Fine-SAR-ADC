@@ -83,18 +83,21 @@ classdef ADC
             Vup = 2^N;
             Vdown = 0;
             buff_out = zeros(1,N);
-            %fine quantization
-            for i = 1:obj.k
-                if Vin > obj.coarse_dac.eval((Vup+Vdown)/2)
-                    Vdown = (Vup+Vdown)/2;
-                    buff_out(i) = 1;
-                else
-                    Vup = (Vup+Vdown)/2;
-                    buff_out(i) = 0;
-                end 
-            end
-            %coarse quantization
+            %if coarse_fine
             if obj.k < N
+            	%coarse quantization
+                for i = 1:obj.k
+                    buff2 = ((Vup+Vdown)/2)/2^(N-obj.k);
+                    if Vin > obj.coarse_dac.eval(buff2)
+                        Vdown = (Vup+Vdown)/2;
+                        buff_out(i) = 1;
+                    else
+                        Vup = (Vup+Vdown)/2;
+                        buff_out(i) = 0;
+                    end 
+                end
+                %fine quantization
+            
                 for j = obj.k+1:N
                     if Vin > obj.fine_dac.eval((Vup+Vdown)/2)
                         Vdown = (Vup+Vdown)/2;
@@ -102,6 +105,19 @@ classdef ADC
                     else
                         Vup = (Vup+Vdown)/2;
                         buff_out(j) = 0;
+                    end 
+                end
+           
+            else
+                %if fine only
+                for i = 1:N
+                    
+                    if Vin > obj.fine_dac.eval((Vup+Vdown)/2)
+                        Vdown = (Vup+Vdown)/2;
+                        buff_out(i) = 1;
+                    else
+                        Vup = (Vup+Vdown)/2;
+                        buff_out(i) = 0;
                     end 
                 end
             end

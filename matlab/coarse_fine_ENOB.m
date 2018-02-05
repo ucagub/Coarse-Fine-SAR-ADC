@@ -1,7 +1,7 @@
 
 ENOB = [];
 mismatch = [];
-iter = 1e2;
+iter = 3e2;
 res = 8;
 k = 4;
 %for k = 2:7
@@ -30,5 +30,5 @@ k = 4;
     plot(mismatch, ENOB)
     xlabel('mismatch');
     ylabel('ENOB');
-    savefig(['ENOB_hist/8bit_coarse_fine_CS_CS/ENOBvsMismatch_8bit_CS_CS_k' num2str(k) '_.fig']);
+    %savefig(['ENOB_hist/8bit_coarse_fine_CS_CS/ENOBvsMismatch_8bit_CS_CS_k' num2str(k) '_.fig']);
 %end

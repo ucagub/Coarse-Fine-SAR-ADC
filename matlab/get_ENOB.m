@@ -23,6 +23,7 @@ function output = get_ENOB(iter, varargin)
         %dac = DAC(8);
         if num_arg == 4
             adc = ADC(inputs.res, inputs.dac_type, inputs.mismatch);
+            adc
         elseif num_arg == 7
             adc = ADC(inputs.res, inputs.k, inputs.coarse_dac_type, inputs.coarse_mismatch, inputs.fine_dac_type, inputs.fine_mismatch);
         end
