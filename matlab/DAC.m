@@ -42,7 +42,6 @@ classdef DAC
             Vout = obj.Vref*(code_up*obj.Cupm' + code_down*obj.Cdownm')/sum(obj.Cupm+obj.Cdownm);
             y = Vout;
         end
-
     end
 end
 
@@ -245,3 +244,4 @@ function y = get_Epercycle(obj)
     end
     y = energy;
 end
+

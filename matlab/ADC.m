@@ -71,6 +71,13 @@ classdef ADC
             %input : Vin ranging from 0 to Vref
             %output: quantized version of Vin
             
+            buff = obj.digitize(Vin);
+            y = obj.Vref*buff/(2^obj.res);
+            
+        end
+        function y = digitize(obj, Vin)
+            %input : Vin ranges form 0 to Vref
+            %output: digital conversion in decimal format
             N = obj.res;
             Vref = obj.Vref;
             Vup = 2^N;
@@ -78,7 +85,7 @@ classdef ADC
             buff_out = zeros(1,N);
             %fine quantization
             for i = 1:obj.k
-                if Vin > obj.fine_dac.eval((Vup+Vdown)/2)
+                if Vin > obj.coarse_dac.eval((Vup+Vdown)/2)
                     Vdown = (Vup+Vdown)/2;
                     buff_out(i) = 1;
                 else
@@ -99,8 +106,23 @@ classdef ADC
                 end
             end
             
-            y = Vref*bi2de(buff_out, 'left-msb')/(2^N);
-            
+            y = bi2de(buff_out, 'left-msb');
         end
+                
+        function plot_tf(obj)
+            %plots the ADC transfer function
+            tic
+            in = [0:1e-6:1];
+            out = zeros(1,length(in));
+            parfor i = 1:length(in)
+                out(i) = obj.digitize(in(i));
+            end
+            figure('Name', 'ADC transfer function');
+            plot(in, out);
+            xlabel('Vin');
+            ylabel('Dout');
+            toc
+        end
+
     end
 end 
