@@ -1,6 +1,6 @@
 ENOB = [];
 mismatch = [];
-iter = 1e3;
+iter = 2e2;
 for j  = 0.01:0.01:0.1 
     j
     tic
@@ -22,4 +22,4 @@ figure('Name', 'ENOBvsMismatch_8bit')
 plot(mismatch, ENOB)
 xlabel('mismatch');
 ylabel('ENOB');
-savefig('ENOB_hist/ENOBvsMismatch_8bit.fig');
+%savefig('ENOB_hist/ENOBvsMismatch_8bit.fig');
