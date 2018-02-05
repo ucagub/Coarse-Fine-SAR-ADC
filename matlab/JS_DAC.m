@@ -13,12 +13,14 @@ classdef JS_DAC
         res
         Emean
         mismatch
+        skip_bits
         %abs_max_DNL
         %DNL_stdev
         %value
     end
     methods
         function obj = JS_DAC(N, varargin)
+            obj.type = 'JS_DAC';
             switch nargin
                 case 1
                     obj.res = N;
@@ -26,6 +28,10 @@ classdef JS_DAC
                 case 2
                     obj.res = N;
                     obj.mismatch = varargin{1};
+                case 3
+                    obj.res = N;
+                    obj.mismatch = varargin{1};
+                    obj.skip_bits = varargin{2};
             end
             
             obj.Vref = 1;
@@ -55,12 +61,12 @@ classdef JS_DAC
             obj.Vouts = get_Vouts(obj);
             
             %generate INL and DNL
-            obj.DNL = get_DNL(obj);
-            obj.INL = get_INL(obj);
-            
-            %get energy per code
-            %obj.Epercycle = get_Epercycle_skip(obj);
-            %obj.Epercycle = get_Epercycle(obj);
+%             obj.DNL = get_DNL(obj);
+%             obj.INL = get_INL(obj);
+%             
+%             %get energy per code
+%             %obj.Epercycle = get_Epercycle_skip(obj);
+%             obj.Epercycle = get_Epercycle(obj);
             %obj.Emean = mean(obj.Epercycle);
             %get_Ecycle1_skip(obj, 129, 6)
             %obj.abs_max_DNL = max(abs(obj.DNL));
@@ -120,9 +126,13 @@ function y = get_Epercycle(obj)
     %of input Vin for the SAR ADC
     N = obj.res;
     Epercycle = zeros(1,2^N-1);
-    
+    if not(isempty(obj.skip_bits))
+        pow = @get_Ecycle1_skip;
+    else
+        pow = @get_Ecycle1;
+    end
     for i = 1:2^N-1
-        Epercycle(i) = get_Ecycle1(obj, i);
+        Epercycle(i) = pow(obj, i);
     end
     y = Epercycle;
 end
@@ -166,21 +176,22 @@ function Ecycle = get_Ecycle1(obj, Vin)
     Ecycle = Etotal;
 end
 
-function y = get_Epercycle_skip(obj)
-    %returns the energy required to search for every possible quantization 
-    %of input Vin for the SAR ADC
-    N = obj.res;
-    Epercycle = zeros(1,2^N-1);
-    skip_bits = 5;
-    
-    for i = 1:2^N-1
-        Epercycle(i) = get_Ecycle1_skip(obj, i, skip_bits);
-    end
-    y = Epercycle;
-end
+% function y = get_Epercycle_skip(obj)
+%     %returns the energy required to search for every possible quantization 
+%     %of input Vin for the SAR ADC
+%     N = obj.res;
+%     Epercycle = zeros(1,2^N-1);
+%     skip_bits = 5;
+%     
+%     for i = 1:2^N-1
+%         Epercycle(i) = get_Ecycle1_skip(obj, i, skip_bits);
+%     end
+%     y = Epercycle;
+%end
 
-function Ecycle = get_Ecycle1_skip(obj, Vin, skip_bits)
+function Ecycle = get_Ecycle1_skip(obj, Vin)
     %returns the total energy after 8 cycles to search for Vin
+    skip_bits = obj.skip_bits;
     N = obj.res;
     Varray_init = zeros(N-1,N-1)
     Etotal = 0;

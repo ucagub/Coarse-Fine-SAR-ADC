@@ -1,9 +1,10 @@
-function output = get_ENOB(iter, varargin)
+function [mismatch, ENOBs] = get_ENOBs(iter,varargin)
     %inputs: iter number of simulations
     %      : res bit resolution, dac_type, mismatch in dac for adc to be characterized    
-    %return: the mostlikely ENOB
+    %return: mismatch and ENOB counterpart
 
-    buff = zeros(1,iter);
+    buffy = zeros([1 iter]);
+    buffx = rand([1 iter])*0.195 + 0.005;
     num_arg = nargin;
     if nargin == 4
         inputs.res = varargin{1};
@@ -21,11 +22,12 @@ function output = get_ENOB(iter, varargin)
     parfor j = 1:iter
     %for j = 1:iter
         %dac = DAC(8);
+        %inputs.coarse_mismatch = buffx(j);
+        %j
         if num_arg == 4
-            adc = ADC(inputs.res, inputs.dac_type, inputs.mismatch);
-            %adc
+            adc = ADC(inputs.res, inputs.dac_type,  buffx(j));
         elseif num_arg == 7
-            adc = ADC(inputs.res, inputs.k, inputs.coarse_dac_type, inputs.coarse_mismatch, inputs.fine_dac_type, inputs.fine_mismatch);
+            adc = ADC(inputs.res, inputs.k, inputs.coarse_dac_type, buffx(j), inputs.fine_dac_type, inputs.fine_mismatch);
         end
         
         fs = 3.15e4;
@@ -42,21 +44,10 @@ function output = get_ENOB(iter, varargin)
         %sinad(z,fs)
         b = sinad(z,fs);
         ENOB = (b-1.76)/6.02; 
-        buff(j) = ENOB;
+        buffy(j) = ENOB;
         
     end
-    if num_arg == 4
-        figure('Name', [int2str(inputs.res) '_' inputs.dac_type '_' num2str(inputs.mismatch)]);
-    elseif num_arg == 7
-        figure('Name', [int2str(inputs.k) '_' inputs.coarse_dac_type '_' num2str(inputs.coarse_mismatch)]);
-    end
-    
-    h = histogram(buff, 'Normalization', 'pdf');
-    xlabel('ENOB');
-    ylabel('pdf');
-    %savefig(['ENOB_hist/8bit_multistep_CS/' int2str(res) '_' dac_type '_' num2str(mismatch) '.fig']);
-    left_edge = find(h.Values == max(h.Values));
-    buff2 = mean(h.BinEdges(left_edge:left_edge+1));
-    close
-    output = buff2;
+    mismatch = buffx;
+    ENOBs = buffy;
 end
+

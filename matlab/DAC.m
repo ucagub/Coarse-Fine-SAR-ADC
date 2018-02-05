@@ -12,6 +12,7 @@ classdef DAC
         Cupm
         Cdownm
         mismatch
+        skip_bits
     end
     properties (Access = private)
 %         Cupm
@@ -19,6 +20,7 @@ classdef DAC
     end
     methods
         function obj = DAC(N, varargin)
+            obj.type = 'CS_DAC';
             switch nargin
                 case 1
                     obj.res = N;
@@ -26,6 +28,10 @@ classdef DAC
                 case 2
                     obj.res = N;
                     obj.mismatch = varargin{1};
+                case 3
+                    obj.res = N;
+                    obj.mismatch = varargin{1};
+                    obj.skip_bits = varargin{2};
             end
             obj.Vref = 1;
             %obj.value = randsd(1);
@@ -34,7 +40,7 @@ classdef DAC
             %obj.INL = get_INL(obj);
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = get_DNL_stdev()
-            obj.Epercycle = get_Epercycle(obj);
+%             obj.Epercycle = get_Epercycle(obj);
         end
 
         function y = eval(obj, Vin)
@@ -183,7 +189,7 @@ function y = CS_pow_skip(obj, u)
     Vin = u;
     code_up = zeros(1,N) + 1;
     code_down = zeros(1,N);
-    [code_up code_down] = get_skip_code(obj, Vin, 3);
+    [code_up code_down] = get_skip_code(obj, Vin);
 
     Vi = zeros(1,N*2);
     Etotal = 0;
@@ -213,7 +219,7 @@ function y = CS_pow_skip(obj, u)
     y = Etotal;
 end
 
-function [c_up, c_down] = get_skip_code(obj, Vin, skip_bits)
+function [c_up, c_down] = get_skip_code(obj, Vin)
     %inputs : number of skipped bits (skip_bits)
     %       : Vin in decimal format
     %returns: the Carray code configuration
@@ -222,7 +228,7 @@ function [c_up, c_down] = get_skip_code(obj, Vin, skip_bits)
     Vdown = 0;
     code_up = zeros(1,N) + 1;
     code_down = zeros(1,N);
-    for i = 1:skip_bits
+    for i = 1:obj.skip_bits
         if Vin >= (Vup+Vdown)/2
            Vdown = (Vup+Vdown)/2;
            code_down(i) = 1;
@@ -239,8 +245,13 @@ end
 function y = get_Epercycle(obj)
     N = obj.res;
     energy = zeros(1,2^N-1);
+    if not(isempty(obj.skip_bits))
+        pow = @CS_pow_skip;
+    else
+        pow = @CS_pow;
+    end
     for i = 0:2^N-1
-        energy(i+1) = CS_pow(obj, i);
+        energy(i+1) = pow(obj, i);
     end
     y = energy;
 end

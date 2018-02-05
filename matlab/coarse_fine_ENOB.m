@@ -1,34 +1,62 @@
 
-ENOB = [];
-mismatch = [];
-iter = 3e2;
+
+iter = 1e5;
+
+ENOB = zeros([1 iter], 'gpuArray');
+mismatch = zeros([1 iter], 'gpuArray');
 res = 8;
-k = 4;
-%for k = 2:7
-    fine_dac_type = 'CS_DAC';
-    fine_mismatch = 0.05;
-    coarse_dac_type = 'CS_DAC';
-    coarse_mismatch = 0.05;
-    %j=0;
-    %fine sample points from 0.01 t0 0.1
-    for j  = 0.01:0.01:0.1 
-        coarse_mismatch = j
-        tic
-        ENOB = [ENOB get_ENOB(iter, res, k, coarse_dac_type, coarse_mismatch, fine_dac_type, fine_mismatch)];
-        mismatch = [mismatch j];
-        toc
-    end
-    %coarse sample points from 0.15 t0 0.5
-    for i  = 0.15:0.05:0.5 
-        coarse_mismatch = i
-        tic
-        ENOB = [ENOB get_ENOB(iter, res, k, coarse_dac_type, coarse_mismatch, fine_dac_type, fine_mismatch)];
-        mismatch = [mismatch i];
-        toc
-    end
+fine_dac_type = 'CS_DAC';
+fine_mismatch = 0.05;
+coarse_dac_type = 'CS_DAC';
+coarse_mismatch = 0.05;
+
+for k  = 2:7 
+    k
+    tic
+    [mismatch(:), ENOB(:)] = get_ENOBs(iter, res, k, coarse_dac_type, coarse_mismatch, fine_dac_type, fine_mismatch);
+
     figure('Name', ['ENOBvsMismatch_8bit_coarse' coarse_dac_type 'fine_' fine_dac_type 'k=' num2str(k)])
-    plot(mismatch, ENOB)
     xlabel('mismatch');
     ylabel('ENOB');
-    %savefig(['ENOB_hist/8bit_coarse_fine_CS_CS/ENOBvsMismatch_8bit_CS_CS_k' num2str(k) '_.fig']);
-%end
+    hold on
+    scatter(mismatch, ENOB, 10);
+    x = gpuArray.linspace(0.005, 0.2, length(mismatch));
+    p3 = polyfit(mismatch', ENOB', 5);
+    plot(x, polyval(p3,x),'LineWidth',6)
+    
+    savefig(['ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_CS_CS_k' num2str(k) '_.fig']);    
+    toc
+end
+
+hold off
+
+
+
+%iter = 1e1
+ENOB = zeros([1 iter], 'gpuArray');
+mismatch = zeros([1 iter], 'gpuArray');
+res = 8;
+fine_dac_type = 'CS_DAC';
+fine_mismatch = 0.05;
+coarse_dac_type = 'JS_DAC';
+coarse_mismatch = 0.05;
+
+for k  = 2:7 
+    k
+    tic
+    [mismatch(:), ENOB(:)] = get_ENOBs(iter, res, k, coarse_dac_type, coarse_mismatch, fine_dac_type, fine_mismatch);
+
+    figure('Name', ['ENOBvsMismatch_8bit_coarse' coarse_dac_type 'fine_' fine_dac_type 'k=' num2str(k)])
+    xlabel('mismatch');
+    ylabel('ENOB');
+    hold on
+    scatter(mismatch, ENOB, 10);
+    x = gpuArray.linspace(0.005, 0.2, length(mismatch));
+    p3 = polyfit(mismatch', ENOB', 5);
+    plot(x, polyval(p3,x),'LineWidth',6)
+    
+    savefig(['ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_V2_JS_CS_k' num2str(k) '_.fig']);    
+    toc
+end
+
+

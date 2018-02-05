@@ -1,6 +1,6 @@
 ENOB = [];
 mismatch = [];
-iter = 1e0;
+iter = 1e1;
 dac_type = 'CS_DAC';
 %j=0;
 for j  = 0.01:0.01:0.1 

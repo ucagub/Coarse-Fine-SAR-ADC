@@ -10,6 +10,8 @@ classdef ADC
         coarse_dac_type
         coarse_mismatch
         comp
+        Etotal_dac
+        Emean
     end
     methods
         function obj = ADC(N, varargin)
@@ -49,22 +51,23 @@ classdef ADC
                     obj.fine_dac_type = varargin{4};
                     obj.fine_mismatch = varargin{5};
                     
-                    if strcmp(obj.fine_dac_type, 'CS_DAC')
+                    if strcmp(obj.coarse_dac_type, 'CS_DAC')
                         obj.coarse_dac = DAC(obj.k, obj.coarse_mismatch);
-                    elseif strcmp(obj.fine_dac_type, 'JS_DAC')
+                    elseif strcmp(obj.coarse_dac_type, 'JS_DAC')
                         obj.coarse_dac = JS_DAC(obj.k, obj.coarse_mismatch);
-                    elseif strcmp(obj.fine_dac_type, 'multistep_CS')
+                    elseif strcmp(obj.coarse_dac_type, 'multistep_CS')
                         obj.coarse_dac = multistep_CS(obj.k,obj.coarse_mismatch);
                     end
                     
                     if strcmp(obj.fine_dac_type, 'CS_DAC')
-                        obj.fine_dac = DAC(N, obj.fine_mismatch);
+                        obj.fine_dac = DAC(N, obj.fine_mismatch, obj.k);
                     elseif strcmp(obj.fine_dac_type, 'JS_DAC')
-                        obj.fine_dac = JS_DAC(N, obj.fine_mismatch);
+                        obj.fine_dac = JS_DAC(N, obj.fine_mismatch, obj.k);
                     elseif strcmp(obj.fine_dac_type, 'multistep_CS')
-                        obj.fine_dac = multistep_CS(N,obj.fine_mismatch);
+                        obj.fine_dac = multistep_CS(N, obj.fine_mismatch, obj.k);
                     end
-                    
+%                     obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
+%                     obj.Emean = mean(obj.Etotal_dac);
             end
         end
         function y = quantizer(obj, Vin)
@@ -142,3 +145,26 @@ classdef ADC
 
     end
 end 
+
+function y = Ecoarse_dac(coarse_dac, N)
+    %inputs : coarse_dac object
+    %       : k skip_bits
+    %       : N resolution
+    %returns: coarse_dac Epercycle
+    bit_remain = N-coarse_dac.res;
+    buff = zeros(1, 2^N);
+    if strcmp(coarse_dac.type, 'CS_DAC')
+        for i = 0:2^N-1
+            %i
+            buff(i+1) = coarse_dac.Epercycle(floor(i/(2^bit_remain)) +1);
+        end
+    elseif strcmp(coarse_dac.type, 'CS_DAC')
+        for i = 0:2^N-2
+            %i
+            buff(i+1) = coarse_dac.Epercycle(floor(i/(2^bit_remain)) +1);
+        end
+        buff(2^N) = buff(1);
+    end
+    
+    y = buff;
+end
