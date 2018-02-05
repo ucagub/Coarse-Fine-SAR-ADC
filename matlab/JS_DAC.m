@@ -12,6 +12,7 @@ classdef JS_DAC
         Epercycle
         res
         Emean
+        mismatch
         %abs_max_DNL
         %DNL_stdev
         %value
@@ -21,6 +22,9 @@ classdef JS_DAC
             switch nargin
                 case 1
                     obj.res = N;
+                case 2
+                    obj.res = N;
+                    obj.mismatch = varargin{1};
             end
             
             obj.Vref = 1;
@@ -35,13 +39,13 @@ classdef JS_DAC
                     32 16 8 4 2 2 0; 
                     64 32 16 8 4 2 2];
             obj.Carray = buff(1:obj.res-1,1:obj.res-1);
-            obj.Ctup = add_mismatch(obj.Ctup);
-            obj.Ctdown = add_mismatch(obj.Ctdown);
+            obj.Ctup = add_mismatch(obj, obj.Ctup);
+            obj.Ctdown = add_mismatch(obj, obj.Ctdown);
 
             %add mismatch to every cap in obj.Carray
             for a = 1:obj.res-1
                 for b = 1:a
-                    obj.Carray(a,b) = add_mismatch(obj.Carray(a,b));
+                    obj.Carray(a,b) = add_mismatch(obj, obj.Carray(a,b));
                 end
             end
             
@@ -99,11 +103,11 @@ function y = get_Vouts(obj)
     y = Vout;
 end
 
-function y = add_mismatch(u)
+function y = add_mismatch(obj, u)
     buff = u;
     Cap = 1e-15;
     Cu = 1*Cap;
-    sigma_Cu = 0.005;
+    sigma_Cu = obj.mismatch;
 
     sigma = Cu*buff*sigma_Cu/sqrt(buff);
     buff = normrnd(Cu*buff,sigma);

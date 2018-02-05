@@ -12,18 +12,22 @@ classdef ADC
                 case 2
                     obj.Vref = 1;
                     obj.res = N;
-                    if varargin{1} == 'CS_DAC'
+                    if strcmp(varargin{1}, 'CS_DAC')
                         obj.dac = DAC(N);
-                    elseif varargin{1} == 'JS_DAC'
+                    elseif strcmp(varargin{1}, 'JS_DAC')
                         obj.dac = JS_DAC(N);
+                    elseif strcmp(varargin{1}, 'multistep_CS')
+                        obj.dac = multistep_CS(N);
                     end
                 case 3
                     obj.Vref = 1;
                     obj.res = N;
-                    if varargin{1} == 'CS_DAC'
+                    if strcmp(varargin{1}, 'CS_DAC')
                         obj.dac = DAC(N, varargin{2});
-                    elseif varargin{1} == 'JS_DAC'
+                    elseif strcmp(varargin{1}, 'JS_DAC')
                         obj.dac = JS_DAC(N, varargin{2});
+                    elseif strcmp(varargin{1}, 'multistep_CS')
+                        obj.dac = multistep_CS(N,varargin{2});
                     end
             end
         end

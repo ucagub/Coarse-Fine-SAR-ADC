@@ -17,10 +17,10 @@ function output = get_ENOB(iter, res, dac_type, mismatch)
         for i = 1:length(y)
             z(i) = adc.quantizer(y(i));
         end
-        %figure;
-        %sinad(z,fs)
+        figure;
+        sinad(z,fs)
         b = sinad(z,fs);
-        ENOB = (b-1.76)/6.02; 
+        ENOB = (b-1.76)/6.02
         buff(j) = ENOB;
     end
     figure('Name', [int2str(res) '_' dac_type '_' num2str(mismatch)]);
@@ -30,6 +30,6 @@ function output = get_ENOB(iter, res, dac_type, mismatch)
     savefig(['ENOB_hist/8bit_multistep_CS/' int2str(res) '_' dac_type '_' num2str(mismatch) '.fig']);
     left_edge = find(h.Values == max(h.Values));
     buff2 = mean(h.BinEdges(left_edge:left_edge+1));
-    %close
+    close
     output = buff2;
 end

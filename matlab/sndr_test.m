@@ -1,11 +1,12 @@
 ENOB = [];
 mismatch = [];
-iter = 2e2;
+iter = 1e3;
+dac_type = 'multistep_CS';
+%j=0;
 for j  = 0.01:0.01:0.1 
     j
     tic
-    %iter = 1e1;
-    ENOB = [ENOB get_ENOB(iter, 8, 'CS_DAC', j)];
+    ENOB = [ENOB get_ENOB(iter, 8, dac_type, j)];
     mismatch = [mismatch j];
     toc
 end
@@ -13,13 +14,12 @@ end
 for i  = 0.15:0.05:0.5 
     i
     tic
-    %iter = 1e1;
-    ENOB = [ENOB get_ENOB(iter, 8, 'CS_DAC', i)];
+    ENOB = [ENOB get_ENOB(iter, 8, dac_type, i)];
     mismatch = [mismatch i];
     toc
 end
-figure('Name', 'ENOBvsMismatch_8bit')
+figure('Name', ['ENOBvsMismatch_8bit_' dac_type])
 plot(mismatch, ENOB)
 xlabel('mismatch');
 ylabel('ENOB');
-%savefig('ENOB_hist/ENOBvsMismatch_8bit.fig');
+savefig('ENOB_hist/8bit_multistep_CS/ENOBvsMismatch_8bit_multistep_CS.fig');
