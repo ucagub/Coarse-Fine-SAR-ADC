@@ -24,7 +24,7 @@ classdef DAC
                     obj.res = N;
                     obj.mismatch = 0;
                 case 2
-                    obj.res = N
+                    obj.res = N;
                     obj.mismatch = varargin{1};
             end
             obj.Vref = 1;
