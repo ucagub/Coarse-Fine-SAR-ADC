@@ -1,4 +1,7 @@
 %F will be normalized to kT/Ctot for switching scheme comparison
+k = 1.3087 * 10^-23;    %Boltzmann Constant
+T = 300;                %Temp = 300 Kelvin
+Cu = logspace(-11,-15)
 
 N = 8;
 i = N - 1;
@@ -28,7 +31,18 @@ for m = cycle
     f = [f,x]
 end
 
-N = 1:1:N;
-plot(N,f,'-s')
+n = 1:1:N;
+
+figure
+plot(n,f,'-s')
 xlabel('Cycle')
 ylabel('Fnp,cap')
+
+f_ave = mean(f)
+f = (f_ave*k*T)./(2^N.*Cu);
+figure
+semilogx(Cu,f)
+xlabel('Unit Capacitance [Cu]')
+ylabel('Noise Power [V^2]')
+
+
