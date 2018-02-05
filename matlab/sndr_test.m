@@ -10,7 +10,7 @@ for j  = 0.01:0.01:0.1
     toc
 end
 
-for i  = 0.2:0.5:0.5 
+for i  = 0.15:0.05:0.5 
     i
     tic
     %iter = 1e1;
