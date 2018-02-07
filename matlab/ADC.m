@@ -9,14 +9,19 @@ classdef ADC
         coarse_dac
         coarse_dac_type
         coarse_mismatch
-        comp
+        coarse_comp_noise
+        fine_comp_noise
         Etotal_dac
         Emean
+        ENOB
     end
     methods
         function obj = ADC(N, varargin)
             obj.Vref = 1;
             obj.res = N;
+            obj.fine_comp_noise = 0;
+            obj.coarse_comp_noise = 1e-5; 
+            
             switch nargin
                 case 1
                 case 2
@@ -68,7 +73,9 @@ classdef ADC
                     end
 %                     obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
 %                     obj.Emean = mean(obj.Etotal_dac);
+            
             end
+            obj.ENOB = obj.get_ENOB();
         end
         function y = quantizer(obj, Vin)
             %input : Vin ranging from 0 to Vref
@@ -91,7 +98,8 @@ classdef ADC
             	%coarse quantization
                 for i = 1:obj.k
                     buff2 = ((Vup+Vdown)/2)/2^(N-obj.k);
-                    if Vin > obj.coarse_dac.eval(buff2)
+                    %if Vin > obj.coarse_dac.eval(buff2)
+                    if obj.coarse_comp(Vin, obj.coarse_dac.eval(buff2))
                         Vdown = (Vup+Vdown)/2;
                         buff_out(i) = 1;
                     else
@@ -102,7 +110,8 @@ classdef ADC
                 %fine quantization
             
                 for j = obj.k+1:N
-                    if Vin > obj.fine_dac.eval((Vup+Vdown)/2)
+                    %if Vin > obj.fine_dac.eval((Vup+Vdown)/2)
+                    if obj.fine_comp(Vin, obj.fine_dac.eval((Vup+Vdown)/2))
                         Vdown = (Vup+Vdown)/2;
                         buff_out(j) = 1;
                     else
@@ -128,7 +137,7 @@ classdef ADC
             y = bi2de(buff_out, 'left-msb');
         end
                 
-        function plot_tf(obj)
+        function plot_tf(obj, Vin)
             %plots the ADC transfer function
             tic
             in = [0:1e-6:1];
@@ -143,6 +152,30 @@ classdef ADC
             toc
         end
 
+    end
+    methods (Access = private)
+        function y = fine_comp(obj, Vin, ref)
+            %returns logical 1 if Vin > ref + noise
+            y = Vin > ref + normrnd(0, sqrt(obj.fine_comp_noise));
+        end
+        function y = coarse_comp(obj, Vin, ref)
+            %returns logical 1 if Vin > ref + noise
+            y = Vin > ref + normrnd(0, sqrt(obj.coarse_comp_noise));
+        end
+        function ENOB = get_ENOB(obj);
+            fs = 3.17e4;
+            f0 = 5e2;
+            N = 1024*2;
+            t = (0:N-1)/fs;
+
+            y = 0.5*sin(2*pi*f0*t) + 0.5;
+            z = zeros(1, length(y));
+            for i = 1:length(y)
+                z(i) = obj.quantizer(y(i));
+            end
+            b = sinad(z,fs);
+            ENOB = (b-1.76)/6.02; 
+        end
     end
 end 
 

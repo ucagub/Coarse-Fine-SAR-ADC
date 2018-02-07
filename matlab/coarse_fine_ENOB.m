@@ -1,6 +1,6 @@
 
 
-iter = 1e5;
+iter = 5e4;
 
 ENOB = zeros([1 iter], 'gpuArray');
 mismatch = zeros([1 iter], 'gpuArray');
@@ -22,9 +22,16 @@ for k  = 2:7
     scatter(mismatch, ENOB, 10);
     x = gpuArray.linspace(0.005, 0.2, length(mismatch));
     p3 = polyfit(mismatch', ENOB', 5);
-    plot(x, polyval(p3,x),'LineWidth',6)
+    plot(x, polyval(p3,x),'LineWidth',4, 'Color', 'r')
+    p2 = polyfit(mismatch', ENOB', 4);
+    plot(x, polyval(p2,x),'LineWidth',4, 'Color', 'g')
+    p1 = polyfit(mismatch', ENOB', 3);
+    plot(x, polyval(p1,x),'LineWidth',4, 'Color', 'b')
+    p = polyfit(mismatch', ENOB', 2);
+    plot(x, polyval(p,x),'LineWidth',4, 'Color', 'y')
     
-    savefig(['ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_CS_CS_k' num2str(k) '_.fig']);    
+    savefig(['ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_CS_CS_k' num2str(k) '_.fig']);   
+    save(['ENOB_hist/8bit/ENOBvsMismatch_8bit_V2_CS_CS_k' num2str(k) '.mat'])
     toc
 end
 
@@ -53,9 +60,16 @@ for k  = 2:7
     scatter(mismatch, ENOB, 10);
     x = gpuArray.linspace(0.005, 0.2, length(mismatch));
     p3 = polyfit(mismatch', ENOB', 5);
-    plot(x, polyval(p3,x),'LineWidth',6)
+    plot(x, polyval(p3,x),'LineWidth',4, 'Color', 'r')
+    p2 = polyfit(mismatch', ENOB', 4);
+    plot(x, polyval(p2,x),'LineWidth',4, 'Color', 'g')
+    p1 = polyfit(mismatch', ENOB', 3);
+    plot(x, polyval(p1,x),'LineWidth',4, 'Color', 'b')
+    p = polyfit(mismatch', ENOB', 2);
+    plot(x, polyval(p,x),'LineWidth',4, 'Color', 'y')
     
-    savefig(['ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_V2_JS_CS_k' num2str(k) '_.fig']);    
+    savefig(['ENOB_hist/8bit/ENOBvsMismatch_8bit_V2_JS_CS_k' num2str(k) '_.fig']);
+    save(['ENOB_hist/8bit/ENOBvsMismatch_8bit_V2_JS_CS_k' num2str(k) '.mat'])
     toc
 end
 

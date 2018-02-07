@@ -1,0 +1,6 @@
+openfig('ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_CS_CS_k2_.fig')
+openfig('ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_CS_CS_k3_.fig')
+openfig('ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_CS_CS_k4_.fig')
+openfig('ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_CS_CS_k5_.fig')
+openfig('ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_CS_CS_k6_.fig')
+openfig('ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_CS_CS_k7_.fig')
