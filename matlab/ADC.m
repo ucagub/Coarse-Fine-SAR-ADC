@@ -73,6 +73,33 @@ classdef ADC
                     end
 %                     obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
 %                     obj.Emean = mean(obj.Etotal_dac);
+                case 8
+                    %(N = resolution, k = coarse_res, coarse_dac_type, coarse_mismatch, fine_dac_type, fine_mismatch, coarse_comp_noise, fine_comp_noise)
+                    obj.k = varargin{1};
+                    obj.coarse_dac_type = varargin{2};
+                    obj.coarse_mismatch = varargin{3};
+                    obj.fine_dac_type = varargin{4};
+                    obj.fine_mismatch = varargin{5};
+                    obj.coarse_comp_noise = varargin{6}; 
+                    obj.fine_comp_noise = varargin{7};
+                    
+                    if strcmp(obj.coarse_dac_type, 'CS_DAC')
+                        obj.coarse_dac = DAC(obj.k, obj.coarse_mismatch);
+                    elseif strcmp(obj.coarse_dac_type, 'JS_DAC')
+                        obj.coarse_dac = JS_DAC(obj.k, obj.coarse_mismatch);
+                    elseif strcmp(obj.coarse_dac_type, 'multistep_CS')
+                        obj.coarse_dac = multistep_CS(obj.k,obj.coarse_mismatch);
+                    end
+                    
+                    if strcmp(obj.fine_dac_type, 'CS_DAC')
+                        obj.fine_dac = DAC(N, obj.fine_mismatch, obj.k);
+                    elseif strcmp(obj.fine_dac_type, 'JS_DAC')
+                        obj.fine_dac = JS_DAC(N, obj.fine_mismatch, obj.k);
+                    elseif strcmp(obj.fine_dac_type, 'multistep_CS')
+                        obj.fine_dac = multistep_CS(N, obj.fine_mismatch, obj.k);
+                    end
+%                     obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
+%                     obj.Emean = mean(obj.Etotal_dac);
             
             end
             obj.ENOB = obj.get_ENOB();
