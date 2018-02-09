@@ -2,7 +2,7 @@ classdef TSJS_DAC < handle
     properties (Access = public)
         type
         Vref
-        %DNL
+        DNL
         %INL
         %Epercycle
         res
@@ -56,7 +56,18 @@ classdef TSJS_DAC < handle
             obj.init_mismatch();
             
             obj.Vouts = obj.get_Vouts();
+            obj.DNL = get_DNL(obj);
             
+        end
+        function y = eval(obj, Vin)
+            if Vin == 0
+                Vout = 0;
+            elseif Vin == 2^obj.res
+                Vout = 1;
+            else
+                Vout = obj.Vouts(Vin);
+            end
+            y = Vout;
         end
     end
     methods (Access = private)
@@ -72,15 +83,17 @@ classdef TSJS_DAC < handle
                 y = 0;
                 return
             end
+
             sigma = Cu*buff*sigma_Cu/sqrt(buff);
             buff = normrnd(Cu*buff,sigma);
             y = buff;
         end
         function y = get_Vouts(obj)
+            %disp('-----------------------------------------------------------')
             N = obj.res;
             %buff = zeros(N,N);
             Vout = zeros(1,2^N-1);
-            Vout(2^N/2) = obj.Cupm.Cter_r/(obj.Cupm.Cter_l + obj.Cupm.Cter_r);
+            Vout(2^N/2) = obj.Vref*obj.Cupm.Cter_r/(obj.Cupm.Cter_l + obj.Cupm.Cter_r);
             
             
             for i = 2:N/2
@@ -93,51 +106,63 @@ classdef TSJS_DAC < handle
                     Vout((2^N)*(j*2-1)/2^i) = obj.Vref*Cup/Ctot;
                 end
             end
+            
             %fine stage
-%             k = ceil(N/2); %coarse res
-%             for w = 1:2^(k-1)
-%                 for stage = 1:k
-%                     for p = 0:1
-%                         index = (2^N)*(((p+1)*2-1 + (w-1)*4)/2^(k+1));
-%                         if p == 0
-%                             %termination cap bot plate connection 1 vref 0 gnd
-%                             %[up down]
-%                             config_ter_r = [0 0];
-%                             Vup_bound = obj.get_Vup_bound(code);
-%                             Vlow_bound = Vout((2^N)*(j*2-1)/2^i);
-%                             Vout(index) = (obj.Cupm.Cter_r*Vup_bound + obj.Cdownm.Cter_r*Vlow_bound)/(obj.Cupm.Cter_r + obj.Cdownm.Cter_r);
-%                         elseif p == 1
-%                             %termination cap bot plate connection 1 vref 0 gnd
-%                             %[up down]
-%                             config_ter_r = [1 0];
-%                             Vup_bound = Vout((2^N)*(j*2-1)/2^i);
-%                             Vlow_bound = obj.get_Vlow_bound(code);
-%                             Vout(index) = (obj.Cupm.Cter_r*(Vup_bound-obj.Vref) + obj.Cdownm.Cter_r*Vlow_bound + obj.Cupm.Cter_r*obj.Vref)/(obj.Cupm.Cter_r + obj.Cdownm.Cter_r);
-%                         end
-%                         for n = 2:N/2
-%                             for m = 1:2^(n-1)
-%                                 code = de2bi(m-1,n-1,'left-msb');
-%                                 index = (2^N)*(m*2-1 + (w-1)*2^(n+1))/2^(k+n);
-%                                 %Ccurr = Vup_bound*
-%                                 %disp('sdf')
-%                                 Vup_init = get_Varray(obj, code, Vup_bound);
-%                                 Vdown_init = get_Varray(obj, code, Vlow_bound);
-%                             end
-%                         end
-%                     end
-%                 end
-%             end
-            
-            
-            
+            k = ceil(N/2); %coarse res
+            for w = 1:2^(k-1)
+                
+                for p = 0:1
+                    index = (2^N)*(((p+1)*2-1 + (w-1)*4)/2^(k+1));
+                    code = de2bi(w-1,k-1,'left-msb');
+                    if p == 1
+                        Vup_bound = obj.get_Vup_bound(code);
+                        Vlow_bound = Vout((w-1)*2^(k+1) + 2^k);
+                        Vout(index) = (obj.Cupm.Cter_r*Vup_bound + obj.Cdownm.Cter_r*Vlow_bound)/(obj.Cupm.Cter_r + obj.Cdownm.Cter_r);
+                    elseif p == 0
+                        Vup_bound = Vout((w-1)*2^(k+1) + 2^k);
+                        Vlow_bound = obj.get_Vlow_bound(code);
+                        Vout(index) = (obj.Cupm.Cter_r*(Vup_bound-obj.Vref) + obj.Cdownm.Cter_r*Vlow_bound + obj.Cupm.Cter_r*obj.Vref)/(obj.Cupm.Cter_r + obj.Cdownm.Cter_r);
+                    end
+                    %Vup_init = get_Varray(obj, code, Vup_bound);
+                    %Vdown_init = get_Varray(obj, code, Vlow_bound);
+                    dV = Vup_bound - Vlow_bound;
+                    Vdown = Vlow_bound;
+                    for stage = 1:k-1
+                        for m = 1:2^stage
+                            code = de2bi(m-1,stage,'left-msb');
+                            %index = (2^N)*(m*2-1 + (w-1)*2^(n+1))/2^(k+n);
+                            %Ccurr = Vup_bound*
+                            %disp('sdf')
+                            
+                            
+                            buff_up = obj.Cupm.Carray;
+                            buff_down = obj.Cdownm.Carray;
+                            
+                            Cup = sum(buff_up(1:stage, 1:stage)*code') + obj.Cupm.Cter_r;
+                            Cdown = sum(buff_down(1:stage, 1:stage)*not(code)') + obj.Cdownm.Cter_r;
 
+                            Vf = dV*(Cup)/(Cup + Cdown) + Vdown;
+
+                            
+                            %find the index
+                            
+                            index = (w-1)*2^(k+1) + (1+2*(m-1))*2^(k-1)/2^(stage) + p*2^(k);
+                            Vout(index) = Vf;
+
+
+                        end
+                    end
+                end
+               
+            end
             
             y = Vout;
         end
         function Vup_bound = get_Vup_bound(obj, code)
             %set Cupm as the upper bound array
             N = obj.res;
-            i = N/2;
+            i = ceil(N/2);
+            code;
             Cup = sum(obj.Cupm.Carray(1:i-1,1:i-1)*code') + (obj.Cupm.Cter_l + obj.Cupm.Cter_r);
             Ctot = sum(sum(obj.Cupm.Carray(1:i-1,1:i-1))) + (obj.Cupm.Cter_l + obj.Cupm.Cter_r);
             Vup_bound = obj.Vref*Cup/Ctot;
@@ -177,5 +202,6 @@ classdef TSJS_DAC < handle
             obj.Cdownm.Cter_r = obj.add_mismatch(obj.Cdownm.Cter_r);
             obj.Cdownm.Cter_l = obj.add_mismatch(obj.Cdownm.Cter_l);
         end
+        
     end
 end

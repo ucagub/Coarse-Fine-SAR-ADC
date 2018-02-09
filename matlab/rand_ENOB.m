@@ -29,7 +29,7 @@ for k = 2:7
     p3 = polyfit(buffx', buffy', 5);
     plot(x, polyval(p3,x),'LineWidth',6)
     hold off
-    savefig(['ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_JS_CS_k' num2str(k) '_.fig']);    
+    %savefig(['ENOB_hist/8bit_coarse_fine/ENOBvsMismatch_8bit_JS_CS_k' num2str(k) '_.fig']);    
     toc
 end
 toc

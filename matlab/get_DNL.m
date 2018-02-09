@@ -16,7 +16,10 @@ function y = DNL(u, v, DAC)
 %usage : DNL(output_next_step, output_prev_step, N)
 %N is resolution
     N = DAC.res;
-    Vref = 1;
-    LSB = (DAC.eval(2^N-1)-DAC.eval(0))/2^N-1;
-    y = ((u-v) - LSB)/LSB;
+    Vref = DAC.Vref;
+%     LSB = (DAC.eval(2^N-1)-DAC.eval(0))/2^N-1;
+%     y = ((u-v) - LSB)/LSB;
+    LSB = (DAC.eval(2^N-1)-DAC.eval(0))/(2^N-1);
+    %LSB = 1/2^N;
+    y = (u-v)/LSB - 1;
 end
