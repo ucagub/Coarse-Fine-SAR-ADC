@@ -35,6 +35,8 @@ classdef ADC
                         obj.fine_dac = JS_DAC(N);
                     elseif strcmp(obj.fine_dac_type, 'multistep_CS')
                         obj.fine_dac = multistep_CS(N);
+                    elseif strcmp(obj.fine_dac_type, 'TSJS_DAC')
+                        obj.fine_dac = TSJS_DAC(N);
                     end
                 case 3
                     %(N = resolution, dac_type, mismatch)
@@ -64,6 +66,8 @@ classdef ADC
                         obj.coarse_dac = JS_DAC(obj.k, obj.coarse_mismatch);
                     elseif strcmp(obj.coarse_dac_type, 'multistep_CS')
                         obj.coarse_dac = multistep_CS(obj.k,obj.coarse_mismatch);
+                    elseif strcmp(obj.coarse_dac_type, 'TSJS_DAC')
+                        obj.coarse_dac = TSJS_DAC(obj.k,obj.coarse_mismatch);
                     end
                     
                     if strcmp(obj.fine_dac_type, 'CS_DAC')
@@ -72,6 +76,8 @@ classdef ADC
                         obj.fine_dac = JS_DAC(N, obj.fine_mismatch, obj.k);
                     elseif strcmp(obj.fine_dac_type, 'multistep_CS')
                         obj.fine_dac = multistep_CS(N, obj.fine_mismatch, obj.k);
+                    elseif strcmp(obj.fine_dac_type, 'TSJS_DAC')
+                        obj.fine_dac = TSJS_DAC(N, obj.fine_mismatch, obj.k);
                     end
 %                     obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
 %                     obj.Emean = mean(obj.Etotal_dac);
@@ -91,6 +97,8 @@ classdef ADC
                         obj.coarse_dac = JS_DAC(obj.k, obj.coarse_mismatch);
                     elseif strcmp(obj.coarse_dac_type, 'multistep_CS')
                         obj.coarse_dac = multistep_CS(obj.k,obj.coarse_mismatch);
+                    elseif strcmp(obj.coarse_dac_type, 'TSJS_DAC')
+                        obj.coarse_dac = TSJS_DAC(obj.k,obj.coarse_mismatch);
                     end
                     
                     if strcmp(obj.fine_dac_type, 'CS_DAC')
@@ -99,6 +107,8 @@ classdef ADC
                         obj.fine_dac = JS_DAC(N, obj.fine_mismatch, obj.k);
                     elseif strcmp(obj.fine_dac_type, 'multistep_CS')
                         obj.fine_dac = multistep_CS(N, obj.fine_mismatch, obj.k);
+                    elseif strcmp(obj.coarse_dac_type, 'TSJS_DAC')
+                        obj.coarse_dac = TSJS_DAC(N, obj.fine_mismatch, obj.k);
                     end
 %                     obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
 %                     obj.Emean = mean(obj.Etotal_dac);

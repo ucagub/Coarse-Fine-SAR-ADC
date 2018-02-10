@@ -1,9 +1,10 @@
-N = 7;
-iter = 1e2;
+tic
+N = 5;
+iter = 1e3;
 DNL = zeros(iter,2^N-1);
 %max = 0;
-for i = 1:iter
-    a = JS_DAC(N);
+parfor i = 1:iter
+    a = JS_DAC(N, 0.05);
     %DNL((i-1)*255+1:i*255) = a.DNL;
     DNL(i,:) = a.DNL;
 %     if a.DNL_stdev > max
@@ -14,6 +15,7 @@ code_var = zeros(1,2^N-1);
 for i = 1:2^N-1
     code_var(i) = var(DNL(:,i));
 end
-
-plot(code_var)
+figure;
+stem(code_var)
 max(code_var)
+toc

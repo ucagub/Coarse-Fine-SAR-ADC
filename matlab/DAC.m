@@ -1,17 +1,13 @@
-classdef DAC
+classdef DAC < mother_DAC
     properties (Access = public)
-        type
-        Vref
         DNL
         INL
         Epercycle
-        res
         %abs_max_DNL
         %DNL_stdev
         %value
         Cupm
         Cdownm
-        mismatch
         skip_bits
     end
     properties (Access = private)
@@ -20,20 +16,20 @@ classdef DAC
     end
     methods
         function obj = DAC(N, varargin)
-            obj.type = 'CS_DAC';
+            %(resolution, Cu, skip_bits )
             switch nargin
                 case 1
-                    obj.res = N;
-                    obj.mismatch = 0;
+                    skip_bits = [];
+                    Cu = 'Default';
                 case 2
-                    obj.res = N;
-                    obj.mismatch = varargin{1};
+                    skip_bits = [];
+                    Cu = varargin{1};
                 case 3
-                    obj.res = N;
-                    obj.mismatch = varargin{1};
-                    obj.skip_bits = varargin{2};
+                    Cu = varargin{1};
+                    skip_bits = varargin{2};
             end
-            obj.Vref = 1;
+            obj@mother_DAC(N, Cu, 'JS_DAC');
+            obj.skip_bits = skip_bits;
             %obj.value = randsd(1);
             [obj.Cupm , obj.Cdownm] = init_mismatch(obj);
             %obj.DNL = get_DNL(obj);
@@ -78,6 +74,7 @@ function [y, z] = init_mismatch(obj)
 end 
 
 function y = add_mismatch(sigma_Cu, u)
+    %add mismatch to cap u
     buff = u;
     Cap = 1e-15;
     Cu = 1*Cap;

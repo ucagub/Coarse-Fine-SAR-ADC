@@ -16,6 +16,15 @@ function output = one_ENOB(varargin)
         inputs.coarse_mismatch = varargin{4};
         inputs.fine_dac_type = varargin{5};
         inputs.fine_mismatch = varargin{6};
+    elseif nargin == 8
+        inputs.res = varargin{1};
+        inputs.k = varargin{2};
+        inputs.coarse_dac_type = varargin{3};
+        inputs.coarse_mismatch = varargin{4};
+        inputs.fine_dac_type = varargin{5};
+        inputs.fine_mismatch = varargin{6};
+        inputs.coarse_comp_noise = varargin{7};
+        inputs.fine_comp_noise = varargin{8};
     end
     
 
@@ -25,6 +34,8 @@ function output = one_ENOB(varargin)
         %adc
     elseif num_arg == 6
         adc = ADC(inputs.res, inputs.k, inputs.coarse_dac_type, inputs.coarse_mismatch, inputs.fine_dac_type, inputs.fine_mismatch);
+     elseif num_arg == 8
+        adc = ADC(inputs.res, inputs.k, inputs.coarse_dac_type, inputs.coarse_mismatch, inputs.fine_dac_type, inputs.fine_mismatch, inputs.coarse_comp_noise, inputs.fine_comp_noise);
     end
         
         fs = 3.15e4;

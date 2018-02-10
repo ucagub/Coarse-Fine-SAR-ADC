@@ -1,34 +1,33 @@
-classdef TSJS_DAC < handle
+classdef TSJS_DAC < mother_DAC
     properties (Access = public)
-        type
-        Vref
+       
         DNL
         %INL
-        %Epercycle
-        res
+        Epercycle
         Cupm
         Cdownm
-        mismatch
-        %skip_bits
+        
+        skip_bits
         Vouts
     end
     methods
         function obj = TSJS_DAC(N, varargin)
-            obj.type = 'TSJS_DAC';
-            obj.Vref = 1;
+            %(resolution, Cu, skip_bits )
             switch nargin
                 case 1
-                    obj.res = N;
-                    obj.mismatch = 0;
+                    skip_bits = [];
+                    Cu = 'Default';
                 case 2
-                    obj.res = N;
-                    obj.mismatch = varargin{1};
+                    skip_bits = [];
+                    Cu = varargin{1};
                 case 3
-                    obj.res = N;
-                    obj.mismatch = varargin{1};
-                    obj.skip_bits = varargin{2};
-                    
+                    Cu = varargin{1};
+                    skip_bits = varargin{2};
             end
+            obj@mother_DAC(N, Cu, 'JS_DAC');
+            obj.skip_bits = skip_bits;
+
+            
             buff = [2 0 0 0 0 0 0; 
                     2 2 0 0 0 0 0; 
                     4 2 2 0 0 0 0;
@@ -56,13 +55,20 @@ classdef TSJS_DAC < handle
             obj.init_mismatch();
             
             obj.Vouts = obj.get_Vouts();
-            obj.DNL = get_DNL(obj);
+            %obj.DNL = get_DNL(obj);
+            obj.Epercycle = obj.get_Epercycle();
             
         end
         function y = eval(obj, Vin)
+            N = obj.res;
+            N_t = ceil(obj.res/2)*2;
+            if N/2 < ceil(N/2)
+                Vin = Vin*2;
+            end
+            %Vin 
             if Vin == 0
                 Vout = 0;
-            elseif Vin == 2^obj.res
+            elseif Vin == 2^N_t
                 Vout = 1;
             else
                 Vout = obj.Vouts(Vin);
@@ -91,29 +97,36 @@ classdef TSJS_DAC < handle
         function y = get_Vouts(obj)
             %disp('-----------------------------------------------------------')
             N = obj.res;
+            N_t = ceil(obj.res/2)*2;
+            k = ceil(N/2); %coarse res
             %buff = zeros(N,N);
-            Vout = zeros(1,2^N-1);
-            Vout(2^N/2) = obj.Vref*obj.Cupm.Cter_r/(obj.Cupm.Cter_l + obj.Cupm.Cter_r);
+            Vout = zeros(1,2^(2*k)-1);
+            Vout(2^N_t/2) = obj.Vref*obj.Cupm.Cter_r/(obj.Cupm.Cter_l + obj.Cupm.Cter_r);
             
             
-            for i = 2:N/2
+            for i = 2:k
                 for j = 1:2^(i-1)
                     %coarse stage
                     code = de2bi(j-1,i-1,'left-msb');
                     Cup = sum(obj.Cupm.Carray(1:i-1,1:i-1)*code') + obj.Cupm.Cter_l;
                     Ctot = sum(sum(obj.Cupm.Carray(1:i-1,1:i-1))) + (obj.Cupm.Cter_l + obj.Cupm.Cter_r);
                     %index = (2^N)*(j*2-1)/2^i;
-                    Vout((2^N)*(j*2-1)/2^i) = obj.Vref*Cup/Ctot;
+                    Vout((2^N_t)*(j*2-1)/2^i) = obj.Vref*Cup/Ctot;
                 end
             end
             
             %fine stage
-            k = ceil(N/2); %coarse res
+            
             for w = 1:2^(k-1)
                 
                 for p = 0:1
-                    index = (2^N)*(((p+1)*2-1 + (w-1)*4)/2^(k+1));
-                    code = de2bi(w-1,k-1,'left-msb');
+                    index = (2^N_t)*(((p+1)*2-1 + (w-1)*4)/2^(k+1));
+                    if (k-1) == 0
+                        code = -1;
+                    else
+                        code = de2bi(w-1,k-1,'left-msb');
+                    end
+                    
                     if p == 1
                         Vup_bound = obj.get_Vup_bound(code);
                         Vlow_bound = Vout((w-1)*2^(k+1) + 2^k);
@@ -162,35 +175,71 @@ classdef TSJS_DAC < handle
             %set Cupm as the upper bound array
             N = obj.res;
             i = ceil(N/2);
-            code;
-            Cup = sum(obj.Cupm.Carray(1:i-1,1:i-1)*code') + (obj.Cupm.Cter_l + obj.Cupm.Cter_r);
-            Ctot = sum(sum(obj.Cupm.Carray(1:i-1,1:i-1))) + (obj.Cupm.Cter_l + obj.Cupm.Cter_r);
+            if code == -1
+                Cup = (obj.Cupm.Cter_l + obj.Cupm.Cter_r);
+                Ctot = Cup;
+            else
+                Cup = sum(obj.Cupm.Carray(1:i-1,1:i-1)*code') + (obj.Cupm.Cter_l + obj.Cupm.Cter_r);
+                Ctot = sum(sum(obj.Cupm.Carray(1:i-1,1:i-1))) + (obj.Cupm.Cter_l + obj.Cupm.Cter_r);
+            end
+            
             Vup_bound = obj.Vref*Cup/Ctot;
         end
         function Vlow_bound = get_Vlow_bound(obj, code)
             %set Cdownm as the lower bound array
             N = obj.res;
-            i = N/2;
-            Cup = sum(obj.Cdownm.Carray(1:i-1,1:i-1)*code');
-            Ctot = sum(sum(obj.Cdownm.Carray(1:i-1,1:i-1))) + (obj.Cdownm.Cter_l + obj.Cdownm.Cter_r);
+            i = ceil(N/2);
+            if code == -1
+                Cup = 0;
+                Ctot = (obj.Cdownm.Cter_l + obj.Cdownm.Cter_r);
+            else
+                Cup = sum(obj.Cdownm.Carray(1:i-1,1:i-1)*code');
+                Ctot = sum(sum(obj.Cdownm.Carray(1:i-1,1:i-1))) + (obj.Cdownm.Cter_l + obj.Cdownm.Cter_r);
+            end
+            
             Vlow_bound = obj.Vref*Cup/Ctot;
         end
         
-        function Varray_final = get_Varray(obj, code, Vx)
-            %returns the voltage for each cap at the given output code
+        function Varray_final = get_Varray(obj, code, stage_num)
+            %returns the voltage for each cap at the given decimal output code
             N = obj.res;
             Vref = obj.Vref;
-            Varray_buff = zeros(ceil((N-2)/2),ceil((N-2)/2));
-            %config = de2bi(code,N,'left-msb');
+            k = ceil(N/2);
+            Varray_buff = zeros(stage_num-1,stage_num-1);
+            
+            config = de2bi(code,N,'left-msb');
+            config = config(1:stage_num-1);
+            %config
+            Vx = obj.eval(code);
+
+            V1d = (Vx - Vref*config);
+            for i = 1:stage_num-1
+                Varray_buff(:,i) = V1d(i);
+            end
+            Varray_buff = Varray_buff.*tril(ones(stage_num-1,stage_num-1));
+            Varray_final = padarray(Varray_buff, [k-stage_num, k-stage_num], 'post');
+            
+        end
+        
+        function Varray_final = get_Varray_tran(obj, code, Vx)
+            %returns the voltage for each cap at the transition decimal output code
+            N = obj.res;
+            Vref = obj.Vref;
+            k = ceil(N/2);
+            
+            Varray_buff = zeros(k,k);
+            
+            config = de2bi(code,N,'left-msb');
+            config = config(1:k);
             %config
             %Vx = obj.eval(code);
 
-            V1d = (Vx - Vref*code);
-            for i = 1:ceil((N-2)/2)
+            V1d = (Vx - Vref*config);
+            for i = 1:stage_num-1
                 Varray_buff(:,i) = V1d(i);
             end
-            Varray_final = Varray_buff.*tril(ones(3,3));
-            %Varray_final = padarray(Varray_buff, [N-stage_num, N-stage_num], 'post');
+            Varray_buff = Varray_buff.*tril(ones(k-1,k-1));
+            Varray_final = Varray_buff;
             
         end
         function init_mismatch(obj)
@@ -201,6 +250,147 @@ classdef TSJS_DAC < handle
             obj.Cdownm.Carray = arrayfun(@obj.add_mismatch, obj.Cdownm.Carray);
             obj.Cdownm.Cter_r = obj.add_mismatch(obj.Cdownm.Cter_r);
             obj.Cdownm.Cter_l = obj.add_mismatch(obj.Cdownm.Cter_l);
+        end
+        function codeCycle = get_codeCycle(obj, Vin)
+            %returns the sequence of codes in the binary search 
+            %inputs : code Vin 
+            N = obj.res;
+            Vup = 2^N;
+            Vdown = 0;
+
+            code_buff = [2^(N-1)];
+            for i = 1:N-1
+                if Vin >= (Vup+Vdown)/2
+                   Vdown = (Vup+Vdown)/2;
+                   code_buff = [code_buff (Vup+Vdown)/2];
+                else
+                   Vup = (Vup+Vdown)/2;
+                   code_buff = [code_buff (Vup+Vdown)/2];
+                end 
+            end
+            codeCycle = code_buff;
+        end
+        function Ecycle = get_Ecycle1(obj, Vin)
+            %returns the total energy after 8 cycles to search for Vin
+            
+            N = obj.res;
+            k = ceil(N/2);
+            Varray_init = zeros(k-1,k-1);
+            Etotal = 0;
+            Vref = obj.Vref;
+            codeCycle = obj.get_codeCycle(Vin);
+            Vter_i = Vref*obj.Cupm.Cter_l/(obj.Cupm.Cter_l + obj.Cupm.Cter_r) - Vref;
+            %coarse stage
+            %assuming Vout of obj.Cupm.Carray == obj.Cdownm.Carray 
+            for i = 2:k
+                code = codeCycle(i);
+                config = de2bi(code,N,'left-msb');
+                config = config(1:i-1);
+                %Vter is for the termination cap
+                %energy for the termination cap
+                Vx = obj.eval(code);
+                Vter_f = Vx - Vref;
+                Eter  = -Vref*(obj.Cupm.Cter_l+obj.Cdownm.Cter_l)*(Vter_f - Vter_i);
+                Vter_i = Vter_f;
+
+                %energy for the rest of the Carray
+                Varray_final = get_Varray(obj, code, i);
+
+                dV = Varray_final-Varray_init;
+                
+                CV_array = ((obj.Cupm.Carray + obj.Cdownm.Carray).*(dV));
+                CV_array = CV_array(1:i-1, 1:i-1);
+                buff_array = -Vref*(CV_array.*config);
+                Etran = sum(sum(buff_array));
+                Etotal = Etotal + Etran + Eter; 
+                Varray_init = Varray_final;
+            end
+
+            %fine stage
+            code = codeCycle(k);
+            config = de2bi(code,N,'left-msb');
+            p = config(k);
+            config = config(1:k-1);
+            Varray_init = obj.eval(code);
+            
+            
+            
+            if p == 1
+                Vup_bound = obj.get_Vup_bound(code);
+                Vlow_bound = obj.eval(code);
+                Vter_f = Vup_bound;
+                Vter_i = Vlow_bound;
+                Eter  = -Vref*obj.Cupm.Cter_l*(Vter_f - Vter_i);
+                Varray_final = get_Varray_tran(obj, code, Vup_bound);
+                dV = Varray_final-Varray_init;
+                CV_array = obj.Cupm.Carray.*(dV);
+                Vter_i = Vup_bound;
+            elseif p == 0
+                Vup_bound = obj.eval(code);
+                Vlow_bound = obj.get_Vlow_bound(code);
+                Vter_f = Vlow_bound;
+                Vter_i = Vup_bound;
+                Eter  = -Vref*obj.Cdownm.Cter_l*(Vter_f - Vter_i);
+                Varray_final = get_Varray_tran(obj, code, Vlow_bound);
+                dV = Varray_final-Varray_init;
+                CV_array = obj.Cdownm.Carray.*(dV);
+            end
+            
+            CV_array = CV_array(1:i-1, 1:i-1);
+            buff_array = -Vref*(CV_array.*config);
+            Etran = sum(sum(buff_array));
+            Etotal = Etotal + Etran + Eter; 
+            
+            
+            if p == 1
+                code = codeCycle(k+1);
+                Vter_f = obj.eval(code) - Vref;
+                Eter  = -Vref*obj.Cdownm.Cter_l*(Vter_f - Vter_i);
+                Etotal = Etotal + Eter;
+            end
+            for i = 2:N-k
+                code = codeCycle(i+k);
+
+                %Vter is for the termination cap
+                %energy for the termination cap
+                Vx = obj.eval(code);
+                if p == 1
+                    Vter_f = Vx - Vref;
+                    Eter  = -Vref*(obj.Cupm.Cter_r)*(Vter_f - Vter_i);
+                    Vter_i = Vter_f;
+                end
+
+                %energy for the rest of the Carray
+                Varray_final = get_Varray(obj, code, i);
+
+                dV = Varray_final-Varray_init;
+                
+                CV_array = ((obj.Cupm.Carray + obj.Cdownm.Carray).*(dV));
+                CV_array = CV_array(1:i-1, 1:i-1);
+                buff_array = -Vref*(CV_array.*config);
+                Etran = sum(sum(buff_array));
+                Etotal = Etotal + Etran + Eter; 
+                Varray_init = Varray_final;
+            end
+            
+            Ecycle = Etotal;
+        end
+        function y = get_Epercycle(obj)
+            %returns the energy required to search for every possible quantization 
+            %of input Vin for the SAR ADC
+            N = obj.res;
+            k = ceil(N/2);
+            Epercycle = zeros(1,2^N-1);
+            if not(isempty(obj.skip_bits))
+                pow = @get_Ecycle1_skip;
+            else
+                pow = @get_Ecycle1;
+            end
+            for i = 1:2^k-1
+                index = i*2^(N-k);
+                Epercycle(index) = pow(obj, index);
+            end
+            y = Epercycle;
         end
         
     end

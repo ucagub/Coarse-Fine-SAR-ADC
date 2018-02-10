@@ -1,8 +1,6 @@
-classdef JS_DAC
+classdef JS_DAC < mother_DAC
     %usage : obj = JS_DAC(N, varargin)
     properties (Access = public)
-        type
-        Vref
         Carray
         Ctup
         Ctdown
@@ -10,9 +8,7 @@ classdef JS_DAC
         DNL
         INL
         Epercycle
-        res
         Emean
-        mismatch
         skip_bits
         %abs_max_DNL
         %DNL_stdev
@@ -20,21 +16,21 @@ classdef JS_DAC
     end
     methods
         function obj = JS_DAC(N, varargin)
-            obj.type = 'JS_DAC';
+            %(resolution, Cu, skip_bits )
             switch nargin
                 case 1
-                    obj.res = N;
-                    obj.mismatch = 0;
+                    skip_bits = [];
+                    Cu = 'Default';
                 case 2
-                    obj.res = N;
-                    obj.mismatch = varargin{1};
+                    skip_bits = [];
+                    Cu = varargin{1};
                 case 3
-                    obj.res = N;
-                    obj.mismatch = varargin{1};
-                    obj.skip_bits = varargin{2};
+                    Cu = varargin{1};
+                    skip_bits = varargin{2};
             end
-            
-            obj.Vref = 1;
+            obj@mother_DAC(N, Cu, 'JS_DAC');
+            obj.skip_bits = skip_bits;
+
             %obj.value = randsd(1);
             obj.Ctup = 1;
             obj.Ctdown = 1;
@@ -61,7 +57,7 @@ classdef JS_DAC
             obj.Vouts = get_Vouts(obj);
             
             %generate INL and DNL
-%             obj.DNL = get_DNL(obj);
+            obj.DNL = get_DNL(obj);
 %             obj.INL = get_INL(obj);
 %             
 %             %get energy per code

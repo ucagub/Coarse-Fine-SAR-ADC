@@ -1,11 +1,11 @@
 
 
-iter = 1e1;
+iter = 1e3;
 
 ENOB = zeros([1 iter], 'gpuArray');
 mismatch = zeros([1 iter], 'gpuArray');
 res = 8;
-fine_dac_type = 'CS_DAC';
+fine_dac_type = 'TSJS_DAC';
 fine_mismatch = 0.05;
 coarse_dac_type = 'CS_DAC';
 coarse_mismatch = 0.05;
@@ -25,8 +25,8 @@ for k  = 2:7
 %     plot(x, polyval(p3,x),'LineWidth',4, 'Color', 'r')
 %     p2 = polyfit(mismatch', ENOB', 4);
 %     plot(x, polyval(p2,x),'LineWidth',4, 'Color', 'g')
-%     p1 = polyfit(mismatch', ENOB', 3);
-%     plot(x, polyval(p1,x),'LineWidth',4, 'Color', 'b')
+    p1 = polyfit(mismatch', ENOB', 3);
+    plot(x, polyval(p1,x),'LineWidth',4, 'Color', 'b')
 %     p = polyfit(mismatch', ENOB', 2);
 %     plot(x, polyval(p,x),'LineWidth',4, 'Color', 'y')
     
