@@ -62,7 +62,7 @@ classdef JS_DAC < mother_DAC
 %             
 %             %get energy per code
 %             %obj.Epercycle = get_Epercycle_skip(obj);
-%             obj.Epercycle = get_Epercycle(obj);
+            obj.Epercycle = get_Epercycle(obj);
             %obj.Emean = mean(obj.Epercycle);
             %get_Ecycle1_skip(obj, 129, 6)
             %obj.abs_max_DNL = max(abs(obj.DNL));

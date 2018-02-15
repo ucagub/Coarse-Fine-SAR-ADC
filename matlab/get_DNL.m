@@ -19,7 +19,7 @@ function y = DNL(u, v, DAC)
     Vref = DAC.Vref;
 %     LSB = (DAC.eval(2^N-1)-DAC.eval(0))/2^N-1;
 %     y = ((u-v) - LSB)/LSB;
-    LSB = (DAC.eval(2^N-1)-DAC.eval(0))/(2^N-1);
-    %LSB = 1/2^N;
+    %LSB = (DAC.eval(2^N-1)-DAC.eval(0))/(2^N-1);
+    LSB = 1/2^N;
     y = (u-v)/LSB - 1;
 end

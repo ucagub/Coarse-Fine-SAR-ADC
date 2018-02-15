@@ -36,7 +36,7 @@ classdef DAC < mother_DAC
             %obj.INL = get_INL(obj);
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = get_DNL_stdev()
-%             obj.Epercycle = get_Epercycle(obj);
+            %obj.Epercycle = get_Epercycle(obj);
         end
 
         function y = eval(obj, Vin)
@@ -64,8 +64,8 @@ function [y, z] = init_mismatch(obj)
     
     %add mismatch to caps
     for i = 1:length(Cupm)
-        Cupm(i) = add_mismatch(obj.mismatch, Cupm(i)); 
-        Cdownm(i) = add_mismatch(obj.mismatch, Cdownm(i));
+        Cupm(i) = add_mismatch(obj, Cupm(i)); 
+        Cdownm(i) = add_mismatch(obj, Cdownm(i));
     end
 %     Cupm = arrayfun(@add_mismatch, Cupm);
 %     Cdownm = arrayfun(@add_mismatch, Cdownm);
@@ -73,10 +73,11 @@ function [y, z] = init_mismatch(obj)
     z = Cdownm;
 end 
 
-function y = add_mismatch(sigma_Cu, u)
+function y = add_mismatch(obj, u)
     %add mismatch to cap u
+    sigma_Cu = obj.mismatch;
     buff = u;
-    Cap = 1e-15;
+    Cap = obj.Cu;
     Cu = 1*Cap;
     
     sigma = Cu*buff*sigma_Cu/sqrt(buff);
