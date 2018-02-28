@@ -1,0 +1,44 @@
+tic
+iter = 2e2;
+Start = -4;
+End = -8;
+noise = rand(1,iter)*(End - Start) + Start;
+buff_noise = 10.^noise;
+buff_ENOB = zeros(1,iter);
+N = 10;
+k = 6;
+parfor i = 1:iter
+    a = ADC(N, k, 'CS_DAC', 1e5, 'CS_DAC', 1e5, buff_noise(i), 0);
+    buff_ENOB(i) = a.ENOB;
+end
+
+scatter(buff_noise, buff_ENOB, 4);
+set(gca,'xscale','log')
+hold on
+
+
+buff_ENOB = zeros(1,iter);
+parfor i = 1:iter
+    a = ADC(N, k, 'CS_DAC', 1e5, 'CS_DAC', 1e5, 0, buff_noise(i));
+    buff_ENOB(i) = a.ENOB;
+end
+
+scatter(buff_noise, buff_ENOB, 4, [1 0 0]);
+set(gca,'xscale','log')
+
+buffx = 10.^linspace(End,Start,iter);
+buff_ideal = zeros(1:iter);
+parfor i = 1:iter
+    buff_ideal = ideal_ENOB([0 buffx(i)], k, N)
+end
+
+buffx2 = 10.^linspace(End,Start,iter);
+buff_ideal = zeros(1:iter);
+parfor i = 1:iter
+    buff_ideal = ideal_ENOB([0 buffx(i)], k, N)
+end
+
+plot(buffx, buff_ideal)
+hold off
+
+toc

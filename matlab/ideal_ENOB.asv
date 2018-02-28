@@ -1,0 +1,9 @@
+function ENOB = ideal_ENOB()
+    %([fine_comp_noise coarse_comp_noise], k=coarse stage bits, resolution, Vref)
+    LSB = Vref/2^N;
+    a = LSB^2/12;
+    b = 7;
+    mse = MSE(u, k, N);
+    buff = mse*LSB^2 + LSB^2/12 - 2*a*(1-exp(-b*mse));
+    ENOB = (10*log10( (LSB*2^N)^2) )/6.02;
+end

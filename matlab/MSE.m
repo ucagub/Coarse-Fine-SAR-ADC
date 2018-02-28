@@ -1,4 +1,5 @@
 function y = MSE(u, k, N)
+    %([fine_comp_noise coarse_comp_noise], k=coarse stage bits, resolution)
     %MSE formula from the paper
     %N = 8;
     Vref = 1;

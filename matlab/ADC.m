@@ -87,7 +87,7 @@ classdef ADC
 %                     obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
 %                     obj.Emean = mean(obj.Etotal_dac);
                 case 8
-                    %(N = resolution, k = coarse_res, coarse_dac_type, coarse_mismatch, fine_dac_type, fine_mismatch, coarse_comp_noise, fine_comp_noise)
+                    %(N = resolution, k = coarse_res, coarse_dac_type, coarse_Cu, fine_dac_type, fine_Cu, coarse_comp_noise, fine_comp_noise)
                     obj.k = varargin{1};
                     obj.coarse_dac_type = varargin{2};
                     obj.coarse_Cu = varargin{3};
