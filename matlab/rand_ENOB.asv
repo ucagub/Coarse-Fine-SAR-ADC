@@ -5,7 +5,7 @@ k = 7;
 fine_dac_type = 'TSCS_DAC';
 fine_mismatch = 0.05;
 coarse_dac_type = 'TSCS_DAC';
-coarse_mismatch = 0.002;
+coarse_mismatch = 0.008;
 tic
 left_edge = 0.001;
 right_edge = 0.01;
@@ -20,7 +20,7 @@ for k = 7:7
     parfor i = 1:samples
         
         fine_mismatch = buffx(i);
-        a = ADC(res, k, coarse_dac_type, (0.008*sqrt(1e-15)/coarse_mismatch)^2, fine_dac_type, (0.008*sqrt(1e-15)/fine_mismatch)^2, coarse_noise, fine_noise);
+        a = ADC(res, k, coarse_dac_type, (1e-15)*(0.05/coarse_mismatch)^2, fine_dac_type, (1e-15)*(0.05/fine_mismatch)^2, coarse_noise, fine_noise);
         buffy(i) = a.ENOB;
     end
     

@@ -1,9 +1,9 @@
-iter = 3e2;
-res = 8;
+iter = 5e1;
+res = 10;
 k = 6;
-fine_dac_type = 'CS_DAC';
+fine_dac_type = 'TSCS_DAC';
 fine_mismatch = 0.04;
-coarse_dac_type = 'CS_DAC';
+coarse_dac_type = 'TSCS_DAC';
 coarse_mismatch = 0.04;
 coarse_comp_noise = 1e-6;
 fine_comp_noise = 1e-6;

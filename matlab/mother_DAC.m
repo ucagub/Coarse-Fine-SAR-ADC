@@ -8,7 +8,7 @@ classdef mother_DAC < handle
         
     end
     properties (Access = private)
-        process_m = 0.05 %process_mismatch_constant
+        process_m = 0.008 %process_mismatch_constant
         area_prop %area_proportionality
     end
     methods 

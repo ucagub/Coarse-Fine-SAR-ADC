@@ -1,15 +1,13 @@
 mse = [];
 N = 10;
 %k = 2;
-Vref = 1;
+Plsb = 1e-9;
+Pbudget = 175*Plsb;
 lsb = Vref/2^N;
-%Plsb = (23.2e-15)*(7.1e8)/lsb^2;
-Plsb = 3e-14;
-Pbudget = 30*Plsb;
 tic
 for k = 3:N-1
     
-    
+    Vref = 1;
     
     x0 = [0,0];
     x0(1) = Plsb;
@@ -21,19 +19,19 @@ for k = 3:N-1
     beq = [];
     lb = [0 0];
     ub = [];
-    a = Comparator_fns(N, k, Plsb, Pbudget);
-    options = optimoptions(@fmincon,'Algorithm','interior-point','OptimalityTolerance',1e-30, 'StepTolerance', 1e-30, 'ConstraintTolerance', 1e-30, 'MaxIterations', 10e3, 'MaxFunctionEvaluations', 1e4)
+    a = Comparator_fns('sdf', k);
+    options = optimoptions(@fmincon,'Algorithm','interior-point','OptimalityTolerance',1e-12, 'StepTolerance', 1e-12, 'ConstraintTolerance', 1e-12, 'MaxIterations', 5e3)
     %options = optimoptions('fmincon','Display','iter','Algorithm','sqp');
-    k
-    x = fmincon(@a.MSE_prox,x0,A,b,Aeq,beq,lb,ub,@a.power_constraint_prox, options)
-    
-    norm = x*2^10
+
+    x = fmincon(@a.MSE_prox,x0,A,b,Aeq,beq,lb,ub,@a.power_constraint_prox, options);
+    k;
+    norm = x*2^10;
     %x = fmincon(@MSE,x0,A,b,Aeq,beq,lb,ub,@power_constraint)
     
-    mse = [mse a.MSE_prox(x)]
+    mse = [mse a.MSE_prox(x)];
 end
 
-best_k = find(mse == min(mse)) + 2
+best_k = find(mse == min(mse))
 toc
 %Pbudget = 175
 %k MSB

@@ -175,31 +175,32 @@ classdef multistep_CS_4bit < mother_DAC
 
             
         end
+        function [y, z] = init_mismatch(obj)
+            Cu = obj.mismatch;
+            sigma_Cu = obj.mismatch;
+
+
+            SCA1_array = [1 1 1 1];
+            SCA2_array = [1 1 1 1];
+
+
+            %initialize Cupm Cdownm
+            SCA1_arraym = SCA1_array;
+            SCA2_arraym = SCA2_array;
+
+            for a = 1:4
+                sigma = Cu*SCA1_array(a)*sigma_Cu/sqrt(SCA1_array(a));
+                SCA1_arraym(a) = normrnd(Cu*SCA1_array(a),sigma);
+            end
+            for a = 1:4
+                sigma = Cu*SCA2_array(a)*sigma_Cu/sqrt(SCA2_array(a));
+                SCA2_arraym(a) = normrnd(Cu*SCA2_array(a),sigma);
+            end
+
+            y = SCA1_arraym;
+            z = SCA2_arraym;
+        end
 
     end
 end
 
-function [y, z] = init_mismatch(obj)
-    Cu = obj.Cu;
-    sigma_Cu = obj.mismatch;
-
-    SCA1_array = [1 1 1 1];
-    SCA2_array = [1 1 1 1];
-
-    
-    %initialize Cupm Cdownm
-    SCA1_arraym = SCA1_array;
-    SCA2_arraym = SCA2_array;
-
-    for a = 1:4
-        sigma = Cu*SCA1_array(a)*sigma_Cu/sqrt(SCA1_array(a));
-        SCA1_arraym(a) = normrnd(Cu*SCA1_array(a),sigma);
-    end
-    for a = 1:4
-        sigma = Cu*SCA2_array(a)*sigma_Cu/sqrt(SCA2_array(a));
-        SCA2_arraym(a) = normrnd(Cu*SCA2_array(a),sigma);
-    end
-    
-    y = SCA1_arraym;
-    z = SCA2_arraym;
-end

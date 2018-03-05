@@ -1,16 +1,19 @@
 classdef Comparator_fns
     properties (Access = public)
-        type
+        %type
         Vref
         N
         k
-        
+        Plsb
+        Pbudget
     end
 
     methods
-        function obj = Comparator_fns(name, k)
-            obj.type = name;
-            obj.N = 8;
+        function obj = Comparator_fns(N, k, Plsb, Pbudget)
+            %obj.type = name;
+            obj.Pbudget = Pbudget;
+            obj.Plsb = Plsb;
+            obj.N = N;
             obj.k = k;
             obj.Vref = 1;
         end
@@ -18,10 +21,10 @@ classdef Comparator_fns
         function [c,ceq] = power_constraint(x)
             %comparator power constraint
             Vref = 1;
-            N = 8;
-            k = 2;
-            Plsb = 1e-6;
-            Pbudget = 175*Plsb;
+            N = obj.N;
+            k = obj.k;
+            Plsb = obj.Plsb;
+            Pbudget = obj.Pbudget;
             lsb = Vref/2^N;
 
             c = [];

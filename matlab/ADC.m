@@ -41,7 +41,7 @@ classdef ADC
                     end
                 case 3
                     %(N = resolution, dac_type, Cu)
-                    obj.k = 8;
+                    obj.k = N;
                     obj.fine_dac_type = varargin{1};
                     obj.coarse_dac_type = 'NONE';
                     if strcmp(obj.fine_dac_type, 'CS_DAC')
@@ -52,6 +52,8 @@ classdef ADC
                         obj.fine_dac = multistep_CS(N,varargin{2});
                     elseif strcmp(obj.fine_dac_type, 'TSJS_DAC')
                         obj.fine_dac = TSJS_DAC(N,varargin{2});
+                    elseif strcmp(obj.fine_dac_type, 'ideal_DAC')
+                        obj.fine_dac = ideal_DAC(N,varargin{2});
                     end
                 case 6
                     %(N = resolution, k = coarse_res, coarse_dac_type, coarse_mismatch, fine_dac_type, fine_mismatch)
@@ -100,12 +102,8 @@ classdef ADC
                         obj.coarse_dac = DAC(obj.k, obj.coarse_Cu);
                     elseif strcmp(obj.coarse_dac_type, 'JS_DAC')
                         obj.coarse_dac = JS_DAC(obj.k, obj.coarse_Cu);
-                    elseif strcmp(obj.coarse_dac_type, 'multistep_CS')
-                        obj.coarse_dac = multistep_CS(obj.k,obj.coarse_Cu);
-                    elseif strcmp(obj.coarse_dac_type, 'multistep_CS_6bit')
-                        obj.coarse_dac = multistep_CS_6bit(obj.k,obj.coarse_Cu);
-                    elseif strcmp(obj.coarse_dac_type, 'multistep_CS_4bit')
-                        obj.coarse_dac = multistep_CS_4bit(obj.k,obj.coarse_Cu);
+                    elseif strcmp(obj.coarse_dac_type, 'TSCS_DAC')
+                        obj.coarse_dac = TSCS_DAC(obj.k,obj.coarse_Cu);
                     elseif strcmp(obj.coarse_dac_type, 'TSJS_DAC')
                         obj.coarse_dac = TSJS_DAC(obj.k,obj.coarse_Cu);
                     end
@@ -114,8 +112,8 @@ classdef ADC
                         obj.fine_dac = DAC(N, obj.fine_Cu, obj.k);
                     elseif strcmp(obj.fine_dac_type, 'JS_DAC')
                         obj.fine_dac = JS_DAC(N, obj.fine_Cu, obj.k);
-                    elseif strcmp(obj.fine_dac_type, 'multistep_CS')
-                        obj.fine_dac = multistep_CS(N, obj.fine_Cu, obj.k);
+                    elseif strcmp(obj.fine_dac_type, 'TSCS_DAC')
+                        obj.fine_dac = TSCS_DAC(N, obj.fine_Cu, obj.k);
                     elseif strcmp(obj.coarse_dac_type, 'TSJS_DAC')
                         obj.coarse_dac = TSJS_DAC(N, obj.fine_Cu, obj.k);
                     end

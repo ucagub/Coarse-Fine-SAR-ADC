@@ -5,8 +5,8 @@ End = -10;
 noise = rand(1,iter)*(End - Start) + Start;
 buff_noise = 10.^noise;
 buff_ENOB = zeros(1,iter);
-N = 12;
-k = 6;
+N = 10;
+k = 5;
 %for k = 3:N-1
     tic
     k

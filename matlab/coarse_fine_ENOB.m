@@ -2,12 +2,12 @@
 
 iter = 2e2;
 
-ENOB = zeros([1 iter], 'gpuArray');
-mismatch = zeros([1 iter], 'gpuArray');
-res = 8;
-fine_dac_type = 'multistep_CS';
+ENOB = zeros([1 iter]);
+mismatch = zeros([1 iter]);
+res = 10;
+fine_dac_type = 'TSCS_DAC';
 fine_Cu = 1;
-coarse_dac_type = 'CS_DAC';
+coarse_dac_type = 'TSCS_DAC';
 coarse_Cu = 1;
 constant = sqrt(1e-15)*0.05;
 
@@ -50,9 +50,9 @@ constant = sqrt(1e-15)*0.05;
 ENOB = zeros([1 iter], 'gpuArray');
 mismatch = zeros([1 iter], 'gpuArray');
 res = 8;
-fine_dac_type = 'multistep_CS';
+fine_dac_type = 'TSCS_CS';
 fine_Cu = 1;
-coarse_dac_type = 'CS_DAC';
+coarse_dac_type = 'TSCS_DAC';
 coarse_Cu = 1;
 constant = sqrt(1e-15)*0.05;
 

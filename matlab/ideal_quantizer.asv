@@ -1,9 +1,0 @@
-function y = ideal_quantizer(N, Vin)
-    %inputs : N resolution
-    %       : Vin input to be quantized
-    %output : quantized value
-    Vref = 1;
-    N = 8;
-    LSB = Vref/(2^8);
-    y = floor(Vin/LSB);
-end
