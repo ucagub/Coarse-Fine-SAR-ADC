@@ -1,0 +1,4 @@
+data = csvread('inputparasiticcap.csv',1);
+Xdata = data(:,1);
+Ydata = data(:,2);
+sample = [Ydata()]

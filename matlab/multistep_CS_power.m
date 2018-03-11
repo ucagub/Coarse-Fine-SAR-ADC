@@ -87,7 +87,7 @@ function y = multistep_CS_power(Vin)
     Etotal = Etotal - Vref*(SCA2_array*((Vf2-Vi2).*SCA2_code)');
     Vi2 = Vf2;
 
-
+Etotal
 
 
     if SCA1_bound > SCA2_bound
@@ -119,7 +119,7 @@ function y = multistep_CS_power(Vin)
     Vi1 = Vf1;
     Vi2 = Vf2;
 
-
+Etotal
     if (Vin >= Vout && up == 1) || (Vin < Vout && up == 2)
         SCA1_on(7) = 1;
         SCA1_on(6) = 1;
@@ -153,7 +153,7 @@ function y = multistep_CS_power(Vin)
     Etotal = Etotal - Vref*(SCA1_array*((Vf1-Vi1).*SCA1_code)') - Vref*(SCA2_array*((Vf2-Vi2).*SCA2_code)');
     Vi1 = Vf1;
     Vi2 = Vf2;
-
+Etotal
 
     if (Vin >= Vout && up == 1) || (Vin < Vout && up == 2)
         SCA1_on(5) = 1;
@@ -187,7 +187,7 @@ function y = multistep_CS_power(Vin)
     Etotal = Etotal - Vref*(SCA1_array*((Vf1-Vi1).*SCA1_code)') - Vref*(SCA2_array*((Vf2-Vi2).*SCA2_code)');
     Vi1 = Vf1;
     Vi2 = Vf2;
-
+Etotal
 
     if (Vin >= Vout && up == 1) || (Vin < Vout && up == 2)
         SCA1_on(4) = 1;
