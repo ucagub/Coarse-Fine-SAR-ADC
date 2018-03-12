@@ -151,7 +151,7 @@ function y = multistep_CS_power_10bit_ds(Vin, k)
 
     %fine
 
-    if(k == 5)
+    if(k >= 5)
         Etotal = 0;
         Vi1 = zeros(1,13);
         Vi2 = zeros(1,13);
