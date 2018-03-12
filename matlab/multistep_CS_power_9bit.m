@@ -1,4 +1,4 @@
-function y = multistep_CS_power_10bit(Vin)
+function y = multistep_CS_power_9bit(Vin)
     Vref = 1;
 
     Vi1 = zeros(1,13);
