@@ -16,33 +16,43 @@ classdef DAC < mother_DAC
     end
     methods
         function obj = DAC(N, varargin)
-            %(resolution, Cu, skip_bits )
+            %(resolution, Cu, skip_bits, load_cap, droop )
+            load_cap = 0;
+            skip_bits = [];
+            droop = 0;
             switch nargin
                 case 1
-                    skip_bits = [];
                     Cu = 'Default';
                 case 2
-                    skip_bits = [];
                     Cu = varargin{1};
                 case 3
                     Cu = varargin{1};
                     skip_bits = varargin{2};
+                case 4
+                    Cu = varargin{1};
+                    skip_bits = varargin{2};
+                    load_cap = varargin{3};
+                case 5
+                    Cu = varargin{1};
+                    skip_bits = varargin{2};
+                    load_cap = varargin{3};
+                    droop = varargin{4};
             end
-            obj@mother_DAC(N, Cu, 'JS_DAC');
+            obj@mother_DAC(N, Cu, 'CS_DAC', load_cap, droop);
             obj.skip_bits = skip_bits;
             %obj.value = randsd(1);
             [obj.Cupm , obj.Cdownm] = init_mismatch(obj);
-            %obj.DNL = get_DNL(obj);
-            %obj.INL = get_INL(obj);
+            obj.DNL = get_DNL(obj);
+            obj.INL = get_INL(obj);
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = get_DNL_stdev()
-            %obj.Epercycle = get_Epercycle(obj);
+            obj.Epercycle = get_Epercycle(obj);
         end
 
         function y = eval(obj, Vin)
             [code_up, code_down] = getCode(obj, Vin);
-            Vout = obj.Vref*(code_up*obj.Cupm' + code_down*obj.Cdownm')/sum(obj.Cupm+obj.Cdownm);
-            y = Vout;
+            Vout = obj.Vref*(code_up*obj.Cupm' + code_down*obj.Cdownm')/sum(obj.Cupm+obj.Cdownm + obj.load_cap);
+            y = Vout - obj.droop;
         end
     end
 end

@@ -3,10 +3,9 @@ function obj = TSCS_DAC(N, Cu, varargin)
     
     if nargin == 3
         skip_bits = varargin{1};
-    else nargin == 2
+    elseif nargin == 2
         skip_bits = 0;
     end
-    
     switch N
         case 3
             obj = multistep_CS_3bit(N, Cu);

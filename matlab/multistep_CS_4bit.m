@@ -49,7 +49,6 @@ classdef multistep_CS_4bit < mother_DAC
             Vin = Vin/(2^(obj.res));
             Vref = obj.Vref;
 
-
             SCA1_array = [1 1 1 1];
             SCA2_array = [1 1 1 1];
 
@@ -176,9 +175,8 @@ classdef multistep_CS_4bit < mother_DAC
             
         end
         function [y, z] = init_mismatch(obj)
-            Cu = obj.mismatch;
+            Cu = obj.Cu;
             sigma_Cu = obj.mismatch;
-
 
             SCA1_array = [1 1 1 1];
             SCA2_array = [1 1 1 1];

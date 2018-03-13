@@ -34,13 +34,17 @@ classdef JS_DAC < mother_DAC
             %obj.value = randsd(1);
             obj.Ctup = 1;
             obj.Ctdown = 1;
-            buff = [2 0 0 0 0 0 0; 
-                    2 2 0 0 0 0 0; 
-                    4 2 2 0 0 0 0;
-                    8 4 2 2 0 0 0; 
-                    16 8 4 2 2 0 0; 
-                    32 16 8 4 2 2 0; 
-                    64 32 16 8 4 2 2];
+            buff = [2 0 0 0 0 0 0 0 0 0 0; 
+                    2 2 0 0 0 0 0 0 0 0 0; 
+                    4 2 2 0 0 0 0 0 0 0 0;
+                    8 4 2 2 0 0 0 0 0 0 0; 
+                    16 8 4 2 2 0 0 0 0 0 0; 
+                    32 16 8 4 2 2 0 0 0 0 0; 
+                    64 32 16 8 4 2 2 0 0 0 0;
+                    128 64 32 16 8 4 2 2 0 0 0;
+                    256 128 64 32 16 8 4 2 2 0 0;
+                    512 256 128 64 32 16 8 4 2 2 0;
+                    1024 512 256 128 64 32 16 8 4 2 2];
             obj.Carray = buff(1:obj.res-1,1:obj.res-1);
             obj.Ctup = add_mismatch(obj, obj.Ctup);
             obj.Ctdown = add_mismatch(obj, obj.Ctdown);
@@ -58,12 +62,12 @@ classdef JS_DAC < mother_DAC
             
             %generate INL and DNL
             obj.DNL = get_DNL(obj);
-%             obj.INL = get_INL(obj);
+            obj.INL = get_INL(obj);
 %             
 %             %get energy per code
 %             %obj.Epercycle = get_Epercycle_skip(obj);
             obj.Epercycle = get_Epercycle(obj);
-            %obj.Emean = mean(obj.Epercycle);
+            obj.Emean = mean(obj.Epercycle);
             %get_Ecycle1_skip(obj, 129, 6)
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = sqrt(var(obj.DNL));

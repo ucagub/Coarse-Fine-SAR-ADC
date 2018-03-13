@@ -1,5 +1,6 @@
 classdef multistep_CS_10bit < mother_DAC
     properties (Access = public)
+        INL
         DNL
         SCA1_arraym
         SCA2_arraym
@@ -21,10 +22,14 @@ classdef multistep_CS_10bit < mother_DAC
                     Cu = varargin{1};
                     skip_bits = varargin{2};
             end
+            
             obj@mother_DAC(N, Cu, 'multistep_CS_10bit');
             obj.skip_bits = skip_bits;
             [obj.SCA1_arraym , obj.SCA2_arraym] = init_mismatch(obj);
             obj.Vouts = obj.get_Vouts();
+%             obj.DNL = get_DNL(obj);
+%             obj.INL = get_INL(obj);
+            
         end
         function y = eval(obj, Vin)
             N = obj.res;

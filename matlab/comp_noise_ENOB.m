@@ -1,18 +1,18 @@
 tic
-iter = 2e2;
-Start = -6;
+iter = 10;%2e2;
+Start = -6.4;
 End = -10;
 noise = rand(1,iter)*(End - Start) + Start;
 buff_noise = 10.^noise;
 buff_ENOB = zeros(1,iter);
 N = 10;
-k = 5;
-%for k = 3:N-1
+k = 6;
+for k = 3:3
     tic
     k
     figure('Name', [num2str(N) 'bit k=' num2str(k)],'NumberTitle','off')
     parfor i = 1:iter
-        a = ADC(N, k, 'CS_DAC', 1e5, 'CS_DAC', 1e5, buff_noise(i), 0);
+        a = ADC(N, k, k,'CS_DAC', 1e5, 'CS_DAC', 1e5, buff_noise(i), 0);
         buff_ENOB(i) = a.ENOB;
     end
 
@@ -23,7 +23,7 @@ k = 5;
 
     buff_ENOB = zeros(1,iter);
     parfor i = 1:iter
-        a = ADC(N, k, 'CS_DAC', 1e5, 'CS_DAC', 1e5, 0, buff_noise(i));
+        a = ADC(N, k, k,'CS_DAC', 1e5, 'CS_DAC', 1e5, 0, buff_noise(i));
         buff_ENOB(i) = a.ENOB;
     end
 
@@ -46,7 +46,13 @@ k = 5;
     end
 
     semilogx(buffx, buff_ideal, buffx, buff_ideal2)
+    set(gca,'fontsize',20)
+    xlabel('noise variance','FontSize', 20)
+    ylabel('ENOB','FontSize', 20)
+    title(['ENOB vs comparator input referred noise at k=' num2str(k)],'FontSize', 20)
+    legend('simulated ENOB', 'simulated ENOB', 'theoretical ENOB', 'theoretical ENOB')
+    
     hold off
     toc
-%end
+end
 toc
