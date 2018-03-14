@@ -1,14 +1,15 @@
-% mse = [];
+mse = [];
 power = [];
 N = 10;
 %k = 2;
 Vref = 1;
 lsb = Vref/2^N;
-%Plsb = (23.2e-15)*(7.1e8)/lsb^2;
-Plsb = 3e-14;
+Plsb = (14.5e-15)*(.32e-3)^2/lsb^2;
+
+% Plsb = 3e-14;
 Pbudget = 175*Plsb;
 tic
-mse_budget = 0.18;
+mse_budget = .21264;
 for k = 3:N-1
     
     
@@ -37,7 +38,7 @@ for k = 3:N-1
     norm = x*2^10
     %x = fmincon(@MSE,x0,A,b,Aeq,beq,lb,ub,@power_constraint)
     
-%     mse = [mse a.MSE_prox(x)]
+    mse = [mse a.MSE_prox(x)]
     power = [power a.power_prox(x)]
 end
 

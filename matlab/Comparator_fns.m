@@ -52,6 +52,8 @@ classdef Comparator_fns
         
         function [c, ceq] = mse_constraint_prox(obj,x)
      
+%             c(1) = -x(1) + 0.1031 ;
+%             c(2) = x(2) - 0.35;
             c = [];
             ceq = MSE(x, obj.k, obj.N) - obj.mse_budget;
             
@@ -63,7 +65,14 @@ classdef Comparator_fns
             Vref = obj.Vref;;
             Plsb = obj.Plsb;
             LSB  = Vref/2^N;
-            y = ((N-k)/u(1)^2 + k/u(2)^2)*(LSB^2)*Plsb;
+%             y = ((N-k)/u(1)^2 + k/u(2)^2)*(LSB^2)*Plsb;
+
+            a =   7.737e+04  (-5.522e+05, 7.069e+05);
+            b =   -9.14e+14  (-1.498e+15, -3.296e+14);
+            c =      0.2577  (-0.08901, 0.6044);
+            d =  -4.572e+13  (-1.102e+14, 1.88e+13);
+            buff = @(x) a*exp(b*x) + c*exp(d*x);
+            y = (N-k)*buff(u(1)) + k*buff(u(2));
         end
 
 
