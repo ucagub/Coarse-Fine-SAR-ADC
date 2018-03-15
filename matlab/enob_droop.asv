@@ -27,7 +27,7 @@ for j = 1:sam_p
 %     buf_c_load = c_load(j);
     buf_c_load = c_load;
     tic
-%     k
+    k
     %buffx = zeros([1 samples], 'gpuArray');
     buffy = zeros([1 samples]);
 %     buffx = rand(1,samples)*right_edge + left_edge;

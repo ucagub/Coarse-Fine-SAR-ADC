@@ -10,7 +10,7 @@ tic
 for j = 1:length(mismats)
     buffm = mismats(j);
     parfor i = 1:iter
-        a = TSCS_DAC(N, (0.008*sqrt(1e-15)/buffm)^2);
+        a = TSCS2_DAC(N, (0.008*sqrt(1e-15)/buffm)^2);
         %DNL((i-1)*255+1:i*255) = a.DNL;
         DNL(i,:) = a.DNL;
     %     if a.DNL_stdev > max

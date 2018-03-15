@@ -19,6 +19,7 @@ classdef mother_DAC < handle
             obj.type = dac_type;
             obj.res = N;
             obj.droop = 0;
+            obj.load_cap = 0;
             if strcmp(Cu, 'Default')
                 obj.Cu = 1e-15;
             else

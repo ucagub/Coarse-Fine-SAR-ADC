@@ -27,7 +27,7 @@ classdef multistep_CS_10bit < mother_DAC
             obj.skip_bits = skip_bits;
             [obj.SCA1_arraym , obj.SCA2_arraym] = init_mismatch(obj);
             obj.Vouts = obj.get_Vouts();
-%             obj.DNL = get_DNL(obj);
+            obj.DNL = get_DNL(obj);
 %             obj.INL = get_INL(obj);
             
         end

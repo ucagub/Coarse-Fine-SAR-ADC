@@ -58,6 +58,8 @@ classdef ADC
                         obj.fine_dac = TSJS_DAC(N,varargin{2});
                     elseif strcmp(obj.fine_dac_type, 'ideal_DAC')
                         obj.fine_dac = ideal_DAC(N,varargin{2});
+                    elseif strcmp(obj.fine_dac_type, 'TSCS2_DAC')
+                        obj.fine_dac = ideal_DAC(N,varargin{2});
                     end
                 case 6
                     %(N = resolution, k = coarse_res, coarse_dac_type, coarse_mismatch, fine_dac_type, fine_mismatch)
