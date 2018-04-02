@@ -41,7 +41,7 @@ classdef Conv_DAC < mother_DAC
             for i = 1:obj.res+1
                 obj.Carray(i) = obj.add_mismatch(obj.Carray(i)); 
             end
-            obj.Epercycle = obj.get_Epercycle()
+%             obj.Epercycle = obj.get_Epercycle()
             obj.DNL = get_DNL(obj);
             obj.INL = get_INL(obj);
         end

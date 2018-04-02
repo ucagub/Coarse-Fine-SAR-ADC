@@ -193,6 +193,9 @@ classdef ADC
                     elseif strcmp(obj.coarse_dac_type, 'TSJS_DAC')
                         obj.coarse_dac = TSJS_DAC(N, obj.fine_Cu, obj.dac_k);
                     end
+%                     Ecoarse_dac(obj.coarse_dac, obj.res)
+%                     obj.fine_dac.Epercycle
+                    
 %                     obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
 %                     obj.Emean = mean(obj.Etotal_dac);
 %                     obj.power = obj.Emean*8/1e-3;
@@ -275,9 +278,16 @@ classdef ADC
             ylabel('Dout');
             toc
         end
+        function y = get_coarse_DAC_Energy(obj)
+            y = obj.fine_dac.Epercycle;
+        end
+        function y = get_fine_DAC_Energy(obj)
+            y = Ecoarse_dac(obj.coarse_dac, obj.res);
+        end
 
     end
     methods (Access = private)
+        
         function y = fine_comp(obj, Vin, ref)
             %returns logical 1 if Vin > ref + noise
             y = Vin > ref + normrnd(0, sqrt(obj.fine_comp_noise));
@@ -295,17 +305,31 @@ classdef ADC
             return
         end
         function ENOB = get_ENOB(obj);
-            fs = 3.17e4;
+%             fs = 3.17e4;
+%             fs = 10e3;
+%             fs = 5e4;
             f0 = 5e2;
-            N = 1024*2;
-            t = (0:N-1)/fs;
+%             N = 1024*2;
+            N = 2^11-3;
+%             N = 1e4;
+%             t = (0:N-1)/fs;
+            t = linspace(0,10/f0,N+1);
+%             t = t(1:end-1);
 
             y = 0.5*sin(2*pi*f0*t) + 0.5;
             z = zeros(1, length(y));
             for i = 1:length(y)
                 z(i) = obj.quantizer(y(i));
             end
-            b = sinad(z,fs);
+            %house keeping
+%             plot(t,y);
+%             hold on
+%             scatter(t,z);
+%             hold off
+            
+%             b = sinad(z,fs);
+            b = sinad(z);
+            
             ENOB = (b-1.76)/6.02; 
         end
     end

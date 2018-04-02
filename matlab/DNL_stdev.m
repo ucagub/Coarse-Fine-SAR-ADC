@@ -7,10 +7,12 @@ DNL = zeros(iter,2^N-1);
 buff_DNL = zeros(1,n_points); 
 %max = 0;
 tic
-for j = 1:length(mismats)
-    buffm = mismats(j);
+% for j = 1:length(mismats)
+%     buffm = mismats(j);
+%     buffm = 0.008;
     parfor i = 1:iter
-        a = TSCS2_DAC(N, (0.008*sqrt(1e-15)/buffm)^2);
+%         a = Conv_DAC(N, (0.008*sqrt(1e-15)/buffm)^2);
+        a = CS_DAC(N, 10e-15);
         %DNL((i-1)*255+1:i*255) = a.DNL;
         DNL(i,:) = a.DNL;
     %     if a.DNL_stdev > max
@@ -23,15 +25,19 @@ for j = 1:length(mismats)
     end
     toc
 
-    % stem(code_stdv)
-    buff_DNL(j) = max(code_stdv);
-end
-%house keeping
-%figure;
-p = polyfit(mismats, buff_DNL, 1)
-hold on
-plot(mismats, buff_DNL)
-xlabel('mismatch');
-ylabel('max DNL (LSB)');
-title('10 bit DAC')
+    stem(code_stdv)
+%     buff_DNL(j) = max(code_stdv);
+% end
+% %house keeping
+% %figure;
+% p = polyfit(mismats, buff_DNL, 1)
+% hold on
+% plot(mismats, buff_DNL)
+% xlabel('mismatch');
+% ylabel('max DNL (LSB)');
+% title('10 bit DAC')
+
+% xlabel('Output Code');
+% ylabel('max DNL (LSB)');
+% title('10 bit Conventional DAC')
 toc

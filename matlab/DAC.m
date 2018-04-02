@@ -9,6 +9,7 @@ classdef DAC < mother_DAC
         Cupm
         Cdownm
         skip_bits
+        Vouts
     end
     properties (Access = private)
 %         Cupm
@@ -42,17 +43,36 @@ classdef DAC < mother_DAC
             obj.skip_bits = skip_bits;
             %obj.value = randsd(1);
             [obj.Cupm , obj.Cdownm] = init_mismatch(obj);
-            obj.DNL = get_DNL(obj);
-            obj.INL = get_INL(obj);
+            obj.Vouts = obj.get_Vouts();
+%             obj.DNL = get_DNL(obj);
+%             obj.INL = get_INL(obj);
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = get_DNL_stdev()
             obj.Epercycle = get_Epercycle(obj);
         end
-
         function y = eval(obj, Vin)
+            N = obj.res;
+            if Vin == 0
+                y = 0;
+            elseif Vin == 2^N
+                y = obj.Vref;
+            else
+                y = obj.Vouts(Vin);
+            end
+        end
+        function y = evals(obj, Vin)
             [code_up, code_down] = getCode(obj, Vin);
             Vout = obj.Vref*(code_up*obj.Cupm' + code_down*obj.Cdownm')/sum(obj.Cupm+obj.Cdownm + obj.load_cap);
             y = Vout - obj.droop;
+        end
+        function Vouts = get_Vouts(obj)
+            N = obj.res; 
+            buff = zeros(1,2^N-1);
+            for i = 1:2^N-1
+                buff(i) = obj.evals(i);
+            end
+            
+            Vouts = buff;
         end
     end
 end

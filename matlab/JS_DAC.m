@@ -112,7 +112,7 @@ end
 
 function y = add_mismatch(obj, u)
     buff = u;
-    Cap = 1e-15;
+    Cap = obj.Cu;
     Cu = 1*Cap;
     sigma_Cu = obj.mismatch;
 

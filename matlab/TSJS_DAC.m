@@ -25,7 +25,7 @@ classdef TSJS_DAC < mother_DAC
                     Cu = varargin{1};
                     skip_bits = varargin{2};
             end
-            obj@mother_DAC(N, Cu, 'JS_DAC');
+            obj@mother_DAC(N, Cu, 'TSJS_DAC');
             obj.skip_bits = skip_bits;
 
             
