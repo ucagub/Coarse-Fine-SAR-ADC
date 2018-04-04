@@ -38,6 +38,7 @@ classdef DAC < mother_DAC
                     skip_bits = varargin{2};
                     load_cap = varargin{3};
                     droop = varargin{4};
+                    
             end
             obj@mother_DAC(N, Cu, 'CS_DAC', load_cap, droop);
             obj.skip_bits = skip_bits;

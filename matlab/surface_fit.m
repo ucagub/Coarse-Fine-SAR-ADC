@@ -1,6 +1,6 @@
 cs_ENOB = {};
 for k = 5:5
-    label = ['cs_cs_ENOB3d/coarse_CS_DACfine_CS_DACk_' num2str(k) '.mat'];
+    label = ['cs-cs-3d-1MHz/coarse_CS_DACfine_CS_DACk_' num2str(k) '.mat'];
     load(label)
     tot_samp = size(X,1)^2;
     x_samp = size(X,1);

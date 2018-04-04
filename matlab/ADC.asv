@@ -61,27 +61,6 @@ classdef ADC
                     elseif strcmp(obj.fine_dac_type, 'TSCS2_DAC')
                         obj.fine_dac = ideal_DAC(N,varargin{2});
                     end
-                case 4
-                    %(N = resolution, dac_type, Cu, load_cap)
-                    obj.k = N;
-                    obj.fine_dac_type = varargin{1};
-                    obj.coarse_dac_type = 'NONE';
-                    if strcmp(obj.fine_dac_type, 'CS_DAC')
-                        %DAC(resolution, Cu, skip_bits, load_cap, droop )
-                        obj.fine_dac = DAC(N, varargin{2}, 0, varargin{3});
-                    elseif strcmp(obj.fine_dac_type, 'JS_DAC')
-                        obj.fine_dac = JS_DAC(N, varargin{2});
-                    elseif strcmp(obj.fine_dac_type, 'multistep_CS')
-                        obj.fine_dac = multistep_CS(N,varargin{2});
-                    elseif strcmp(obj.fine_dac_type, 'TSJS_DAC')
-                        obj.fine_dac = TSJS_DAC(N,varargin{2});
-                    elseif strcmp(obj.fine_dac_type, 'ideal_DAC')
-                        obj.fine_dac = ideal_DAC(N,varargin{2});
-                    elseif strcmp(obj.fine_dac_type, 'TSCS2_DAC')
-                        obj.fine_dac = ideal_DAC(N,varargin{2});
-                    end
-                    obj.Etotal_dac = obj.fine_dac.Epercycle;
-                    obj.Emean = mean(obj.Etotal_dac);
                 case 6
                     %(N = resolution, k = coarse_res, coarse_dac_type, coarse_mismatch, fine_dac_type, fine_mismatch)
                     obj.k = varargin{1};
@@ -196,7 +175,7 @@ classdef ADC
                     obj.droop = varargin{10};
                     
                     if strcmp(obj.coarse_dac_type, 'CS_DAC')
-                        obj.coarse_dac = DAC(obj.dac_k, obj.coarse_Cu, 0, obj.load_cap);
+                        obj.coarse_dac = DAC(obj.dac_k, obj.coarse_Cu);
                     elseif strcmp(obj.coarse_dac_type, 'JS_DAC')
                         obj.coarse_dac = JS_DAC(obj.dac_k, obj.coarse_Cu);
                     elseif strcmp(obj.coarse_dac_type, 'TSCS_DAC')
@@ -206,7 +185,7 @@ classdef ADC
                     end
                     
                     if strcmp(obj.fine_dac_type, 'CS_DAC')
-                        obj.fine_dac = DAC(N, obj.fine_Cu, obj.dac_k, obj.load_cap);
+                        obj.fine_dac = DAC(N, obj.fine_Cu, obj.dac_k);
                     elseif strcmp(obj.fine_dac_type, 'JS_DAC')
                         obj.fine_dac = JS_DAC(N, obj.fine_Cu, obj.dac_k);
                     elseif strcmp(obj.fine_dac_type, 'TSCS_DAC')
@@ -217,8 +196,8 @@ classdef ADC
 %                     Ecoarse_dac(obj.coarse_dac, obj.res)
 %                     obj.fine_dac.Epercycle
                     
-                    obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
-                    obj.Emean = mean(obj.Etotal_dac);
+%                     obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
+%                     obj.Emean = mean(obj.Etotal_dac);
 %                     obj.power = obj.Emean*8/1e-3;
             
             end
@@ -241,14 +220,13 @@ classdef ADC
             Vdown = 0;
             buff_out = zeros(1,N);
             %if coarse_fine
-            qwer = [0 0 0 0 0 0 0 0 0 0];
+            qwer = [0 0 0 0 0 0 0 0 0 0]
             if obj.k < N
             	%coarse quantization
                 for i = 1:obj.k
                     buff2 = (Vup+Vdown)/2;
                     %if Vin > obj.coarse_dac.eval(buff2)
-%                     if obj.coarse_comp(Vin, obj.DAC_eval(buff2, i))
-                    if obj.coarse_comp(Vin, obj.DAC_eval(buff2, i) - qwer(i))
+                    if obj.coarse_comp(Vin, obj.DAC_eval(buff2, i))
                         Vdown = (Vup+Vdown)/2;
                         buff_out(i) = 1;
                     else
