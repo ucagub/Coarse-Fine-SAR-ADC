@@ -30,7 +30,7 @@ classdef mother_DAC < handle
                     obj.load_cap = varargin{1};
                 case 5
                     obj.load_cap = varargin{1};
-%                     disp('here')
+%                     disp('here_sdf')
                     obj.droop = varargin{2};
             end
             obj.area_prop = obj.Cu/1e-15;

@@ -66,6 +66,8 @@ classdef ADC
                     obj.k = N;
                     obj.fine_dac_type = varargin{1};
                     obj.coarse_dac_type = 'NONE';
+                    obj.fine_Cu = varargin{2};
+                    obj.load_cap = varargin{3};
                     if strcmp(obj.fine_dac_type, 'CS_DAC')
                         %DAC(resolution, Cu, skip_bits, load_cap, droop )
                         obj.fine_dac = DAC(N, varargin{2}, 0, varargin{3});
