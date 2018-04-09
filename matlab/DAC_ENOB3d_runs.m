@@ -8,7 +8,7 @@ coarse_dac_type = 'CS_DAC';
 coarse_mismatch = 0.008;
 tic
 samples = 1e2;
-sam_p = 16;
+sam_p = 20;
 left_edge = 0.002;
 right_edge = 0.012;
 buff_curve = zeros(sam_p,sam_p);
@@ -23,13 +23,13 @@ fine_noise = 0;
 %buffs for cauchy fit
 
 % c_load = linspace(10e-6, 3e-3, sam_p);
-c_load = 0;
+c_load = .4e-15;
 % droop = linspace(10e-6, 3e-3, sam_p);
 droop = 0;
 time_elapsed = 0;
-estimated_time = 7.7*sam_p^2*9;
+estimated_time = 7.7*sam_p^2*10;
 print_time(estimated_time);
-for k = 1:9
+for k = 0:9
     buff_a = zeros(1, sam_p);
     % buff_b = zeros(1, sam_p);
     
@@ -99,9 +99,9 @@ for k = 1:9
     end
 
     sf = fit([x', y'],z','poly23');
-    label = ['cs-cs-3d-1MHz/coarse_' coarse_dac_type 'fine_' fine_dac_type 'k_' num2str(k) '.mat'];
+    label = ['cs-cs-3d-1MHz-loaded/coarse_' coarse_dac_type 'fine_' fine_dac_type 'k_' num2str(k) '.mat'];
     save(label)
-    label_var = ['cs-cs-3d-1MHz/coarse_' coarse_dac_type 'fine_' fine_dac_type 'k_' num2str(k) 'sf' '.mat'];
+    label_var = ['cs-cs-3d-1MHz-loaded/coarse_' coarse_dac_type 'fine_' fine_dac_type 'k_' num2str(k) 'sf' '.mat'];
     save(label_var, 'sf');
     close;
     figure;
