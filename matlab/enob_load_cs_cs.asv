@@ -23,12 +23,12 @@ for j = 1:sam_p
         buf_droop = 0;
     %     buf_c_load = c_load(j);
         buf_c_load = c_load(j);
-        buf_f_load = c_load(j);
+        buf_f_load
         tic
         buffy = zeros([1 samples]);
     %     buffx = rand(1,samples)*right_edge + left_edge;
         parfor i = 1:samples
-            a = ADC(res, 3, 3, coarse_dac_type, 38e-15, fine_dac_type, 2e-15, coarse_noise, fine_noise, buf_c_load, buf_f_load, buf_droop);
+            a = ADC(res, 3, 3, coarse_dac_type, 38e-15, fine_dac_type, 2e-15, coarse_noise, fine_noise, buf_c_load, buf_droop);
             buffy(i) = a.ENOB;
         end
 
