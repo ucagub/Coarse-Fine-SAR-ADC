@@ -334,20 +334,20 @@ classdef ADC
             fs = 1e6;
 %             fs = 5e4;
             
-%             f0 = 25e3;
-            N = 2^8;
-            period = (1/fs)*(N);
+            f0 = 25e3;
+%             N = 2^11;
+%             period = (1/fs)*(N);
 %             1/period
-%             N = 2^11-3;
+            N = 2^11-4;
 %             N = 1e4;
-%             t = (0:N-1)/fs;
-            t = 0:1/fs:period;
-            t = t(1:end-1);
-%             length(t)
-%             t = linspace(0,10/f0,N+1);
+            t = (0:N-1)/fs;
+%             t = 0:1/fs:period;
 %             t = t(1:end-1);
+%             length(t)
+            t = linspace(0,10/f0,N+1);
+            t = t(1:end-1);
 
-            y = 0.5*sin(2*pi*(1/period)*t) + 0.5;
+            y = 0.5*sin(2*pi*f0*t) + 0.5;
             z = zeros(1, length(y));
             for i = 1:length(y)
                 z(i) = obj.quantizer(y(i));
@@ -359,7 +359,7 @@ classdef ADC
 %             hold off
             
 %             b = sinad(z,fs);
-            b = sinad(z, fs);
+            b = sinad(z);
             
             ENOB = (b-1.76)/6.02; 
         end
