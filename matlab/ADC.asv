@@ -234,12 +234,11 @@ classdef ADC
                     obj.fine_Cu = varargin{6};
                     obj.coarse_comp_noise = varargin{7}; 
                     obj.fine_comp_noise = varargin{8};
-                    obj.coarse_load_cap = varargin{9};
-                    obj.fine_load_cap = varargin{10};
-                    obj.droop = varargin{11};
+                    obj.load_cap = varargin{9};
+                    obj.droop = varargin{10};
                     
                     if strcmp(obj.coarse_dac_type, 'CS_DAC')
-                        obj.coarse_dac = DAC(obj.dac_k, obj.coarse_Cu, 0, obj.coarse_load_cap);
+                        obj.coarse_dac = DAC(obj.dac_k, obj.coarse_Cu, 0, obj.load_cap);
                     elseif strcmp(obj.coarse_dac_type, 'JS_DAC')
                         obj.coarse_dac = JS_DAC(obj.dac_k, obj.coarse_Cu);
                     elseif strcmp(obj.coarse_dac_type, 'TSCS_DAC')
@@ -249,7 +248,7 @@ classdef ADC
                     end
                     
                     if strcmp(obj.fine_dac_type, 'CS_DAC')
-                        obj.fine_dac = DAC(N, obj.fine_Cu, obj.dac_k, obj.fine_load_cap);
+                        obj.fine_dac = DAC(N, obj.fine_Cu, obj.dac_k, obj.load_cap);
                     elseif strcmp(obj.fine_dac_type, 'JS_DAC')
                         obj.fine_dac = JS_DAC(N, obj.fine_Cu, obj.dac_k);
                     elseif strcmp(obj.fine_dac_type, 'TSCS_DAC')

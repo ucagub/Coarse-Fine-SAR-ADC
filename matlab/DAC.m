@@ -49,7 +49,7 @@ classdef DAC < mother_DAC
 %             obj.INL = get_INL(obj);
             %obj.abs_max_DNL = max(abs(obj.DNL));
             %obj.DNL_stdev = get_DNL_stdev()
-            obj.Epercycle = get_Epercycle(obj);
+%             obj.Epercycle = get_Epercycle(obj);
         end
         function y = eval(obj, Vin)
             N = obj.res;
