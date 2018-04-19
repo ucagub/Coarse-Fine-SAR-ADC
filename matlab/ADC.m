@@ -1,4 +1,4 @@
-classdef ADC
+classdef ADC < handle
     properties (Access = public)
         Vref
         res
@@ -14,12 +14,17 @@ classdef ADC
         fine_comp_noise
         Etotal_dac
         Emean
-        ENOB
+        
         power
         load_cap
         coarse_load_cap
         fine_load_cap
         droop
+        SNDR
+        ENOB
+    end
+    properties (Access = private)
+        noise_vs_loadcap
     end
     methods
         function obj = ADC(N, varargin)
@@ -29,6 +34,7 @@ classdef ADC
             obj.coarse_comp_noise = 0; 
             obj.load_cap = 0;
             obj.droop = 0;
+            obj.noise_vs_loadcap = csvread('comparatorfinal (4).csv',1);
             switch nargin
                 case 1
                 case 2
@@ -218,12 +224,10 @@ classdef ADC
                     elseif strcmp(obj.coarse_dac_type, 'TSJS_DAC')
                         obj.coarse_dac = TSJS_DAC(N, obj.fine_Cu, obj.dac_k);
                     end
-%                     Ecoarse_dac(obj.coarse_dac, obj.res)
-%                     obj.fine_dac.Epercycle
+
                     
-%                     obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
-%                     obj.Emean = mean(obj.Etotal_dac);
-%                     obj.power = obj.Emean*8/1e-3;
+                    obj.disp_ENOB;
+%                     obj.disp_Emean;
                 case 12
                     %(N = resolution, k = coarse_res, dac_k, coarse_dac_type, coarse_Cu, fine_dac_type, fine_Cu, coarse_comp_noise, fine_comp_noise, coarse_load_cap, fine_load_cap, droop)
                     obj.k = varargin{1};
@@ -232,11 +236,14 @@ classdef ADC
                     obj.coarse_Cu = varargin{4};
                     obj.fine_dac_type = varargin{5};
                     obj.fine_Cu = varargin{6};
-                    obj.coarse_comp_noise = varargin{7}; 
-                    obj.fine_comp_noise = varargin{8};
+%                     obj.coarse_comp_noise = varargin{7}; 
+%                     obj.fine_comp_noise = varargin{8};
                     obj.coarse_load_cap = varargin{9};
                     obj.fine_load_cap = varargin{10};
                     obj.droop = varargin{11};
+                    
+                    obj.coarse_comp_noise = obj.get_noise(obj.coarse_load_cap);
+                    obj.fine_comp_noise = obj.get_noise(obj.fine_load_cap);
                     
                     if strcmp(obj.coarse_dac_type, 'CS_DAC')
                         obj.coarse_dac = DAC(obj.dac_k, obj.coarse_Cu, 0, obj.coarse_load_cap);
@@ -263,9 +270,11 @@ classdef ADC
 %                     obj.Etotal_dac = obj.fine_dac.Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
 %                     obj.Emean = mean(obj.Etotal_dac);
 %                     obj.power = obj.Emean*8/1e-3;
+%                     obj.disp_ENOB;
+%                     obj.disp_Emean;
             
             end
-            obj.ENOB = obj.get_ENOB();
+%             obj.ENOB = obj.get_ENOB();
         end
         function y = quantizer(obj, Vin)
             %input : Vin ranging from 0 to Vref
@@ -350,6 +359,23 @@ classdef ADC
         function y = get_fine_DAC_Energy(obj)
             y = Ecoarse_dac(obj.coarse_dac, obj.res);
         end
+        function y = disp_ENOB(obj)
+            if isempty(obj.ENOB)
+                obj.ENOB = obj.get_ENOB();
+                y = obj.ENOB;
+            else
+                y = obj.ENOB;
+            end
+        end
+        function y = disp_Emean(obj)
+            if isempty(obj.Emean)
+                obj.Etotal_dac = obj.fine_dac.disp_Epercycle + Ecoarse_dac(obj.coarse_dac, obj.res);
+                obj.Emean = mean(obj.Etotal_dac);
+                y = obj.Emean;
+            else
+                y = obj.Emean;
+            end
+        end
 
     end
     methods (Access = private)
@@ -372,14 +398,14 @@ classdef ADC
         end
         function ENOB = get_ENOB(obj);
 %             fs = 3.17e4;
-            fs = 1e6;
+            fs = 200e3;
 %             fs = 5e4;
             
-            f0 = 25e3;
+            f0 = 10e3;
 %             N = 2^11;
 %             period = (1/fs)*(N);
 %             1/period
-            N = 2^11-4;
+            N = 2^9-1;
 %             N = 1e4;
             t = (0:N-1)/fs;
 %             t = 0:1/fs:period;
@@ -401,8 +427,18 @@ classdef ADC
             
 %             b = sinad(z,fs);
             b = sinad(z);
-            
+            obj.SNDR = b;
             ENOB = (b-1.76)/6.02; 
+        end
+        function y = get_noise(obj, load_cap)
+            %returns the noise of a comparator given an input capacitance
+            %of load_cap
+            %input: load_cap
+            %output: input referred noise
+            
+            buff = obj.noise_vs_loadcap;
+            y = interp1q(buff(:,6), buff(:,3), load_cap);
+            
         end
     end
 end 
@@ -412,6 +448,7 @@ function y = Ecoarse_dac(coarse_dac, N)
     %       : k skip_bits
     %       : N resolution
     %returns: coarse_dac Epercycle
+    coarse_dac.disp_Epercycle;
     bit_remain = N-coarse_dac.res;
     buff = zeros(1, 2^N);
     if strcmp(coarse_dac.type, 'CS_DAC')

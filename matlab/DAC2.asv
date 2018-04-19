@@ -1,4 +1,4 @@
-classdef DAC < mother_DAC
+classdef DAC2 < mother_DAC
     properties (Access = public)
         DNL
         INL
@@ -16,7 +16,7 @@ classdef DAC < mother_DAC
 %         Cdownm
     end
     methods
-        function obj = DAC(N, varargin)
+        function obj = DAC2(N, varargin)
             %(resolution, Cu, skip_bits, load_cap, droop )
             load_cap = 0;
             skip_bits = [];

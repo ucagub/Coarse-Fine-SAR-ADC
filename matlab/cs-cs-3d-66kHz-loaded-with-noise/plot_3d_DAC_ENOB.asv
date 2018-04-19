@@ -1,0 +1,12 @@
+for k = 1:9
+    label = ['coarse_CS_DACfine_CS_DACk_' num2str(k)];
+    load(label);
+    [X, Y] = meshgrid(coarse_Cu,fine_Cu);
+    figure;
+    surf(X,Y,buff_curve)
+    ylabel('fine Cu', 'FontSize')
+    xlabel('coarse Cu')
+    zlabel('ENOB')
+    label = ['ENOB = f(fine-Cu, coarse-Cu) at k=' num2str(k)];
+    title(label)
+end

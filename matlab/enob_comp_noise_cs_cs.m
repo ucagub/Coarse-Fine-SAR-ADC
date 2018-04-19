@@ -8,7 +8,9 @@ sam_p = 20;
 
 % coarse_noise = (.3712e-03)^2;
 % fine_noise = (.1504e-3)^2;
-coarse_noise = 0;
+
+
+coarse_noise = linspace(1.25e-07, 1.06e-08, sam_p);;
 fine_noise = 0;
 
 %buffs for cauchy fit
@@ -46,16 +48,14 @@ for m = 1:length(buff_fine_Cus)
             time_elapsed = toc + time_elapsed
 
     end
-    save
-    figure;
-    plot(c_load./1e-15, buff_a,'LineWidth',8)
-    set(gca, 'FontSize', 30)
-    xlabel('load cap (fF)', 'FontSize', 30)
-    ylabel('ENOB', 'FontSize', 30)
-    label = ['ENOB vs load cap fine-Cu =' num2str(fine_Cu/1e-15) ' fF'];
-    title(label, 'FontSize', 30)
 end
-
+figure;
+plot(c_load./1e-15, buff_a,'LineWidth',8)
+set(gca, 'FontSize', 30)
+xlabel('load cap (fF)', 'FontSize', 30)
+ylabel('ENOB', 'FontSize', 30)
+label = ['ENOB vs load cap fine-Cu =' num2str(fine_Cu/1e-15) ' fF'];
+title(label, 'FontSize', 30)
 
 % plot(c_load, buff_a)
 toc

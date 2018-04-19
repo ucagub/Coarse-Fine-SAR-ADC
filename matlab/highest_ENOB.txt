@@ -1,0 +1,7 @@
+k0	ADC(res, k, k, 'CS_DAC', 0, 'CS_DAC', 10e-15, 0.2e-6, 0.2e-6, .4e-15, 0)	9.15	4256
+k1	ADC(res, k, k, 'CS_DAC', 80e-15, 'CS_DAC', 14e-15, 0.2e-6, 0.2e-6, .4e-15, 0)	9.16	4167
+k2 	ADC(res, k, k, 'CS_DAC', 50e-15, 'CS_DAC', 18e-15, 0.2e-6, 0.2e-6, .4e-15, 0)	9.12	4256
+k3 	ADC(res, k, k, 'CS_DAC', 50e-15, 'CS_DAC', 20e-15, 0.2e-6, 0.2e-6, .4e-15, 0)	9.16	4158
+k4	ADC(res, k, k, 'CS_DAC', 50e-15, 'CS_DAC', 21e-15, 0.2e-6, 0.2e-6, .4e-15, 0)	9.12	4186
+k5	ADC(res, k, k, 'CS_DAC', 56e-15, 'CS_DAC', 20e-15, 0.2e-6, 0.2e-6, .4e-15, 0)	9.15	4246
+K6
