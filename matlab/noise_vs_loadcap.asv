@@ -1,3 +1,0 @@
-a = csvread('comparatorfinal (4).csv',1)
-
-interp1q(a())

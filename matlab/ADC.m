@@ -271,7 +271,7 @@ classdef ADC < handle
 %                     obj.Emean = mean(obj.Etotal_dac);
 %                     obj.power = obj.Emean*8/1e-3;
 %                     obj.disp_ENOB;
-%                     obj.disp_Emean;
+                    obj.disp_Emean;
             
             end
 %             obj.ENOB = obj.get_ENOB();
@@ -437,7 +437,7 @@ classdef ADC < handle
             %output: input referred noise
             
             buff = obj.noise_vs_loadcap;
-            y = interp1q(buff(:,6), buff(:,3), load_cap);
+            y = interp1q(buff(:,6), buff(:,3), load_cap - .29e-15);
             
         end
     end

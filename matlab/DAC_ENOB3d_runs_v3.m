@@ -8,7 +8,7 @@ coarse_dac_type = 'CS_DAC';
 
 tic
 samples = 1e2;
-sam_p = 5;
+sam_p = 20;
 
 buff_curve = zeros(sam_p,sam_p);
 
@@ -43,7 +43,7 @@ for k = 0:9
             k
             buffy = zeros([1 samples]);
             parfor i = 1:samples
-                a = ADC(res, k, k, coarse_dac_type, buff_coarse_Cu, fine_dac_type, buff_fine_Cu, .1250e-6, .0286e-6, .5e-15, 1.5e-15, buf_droop);
+                a = ADC(res, k, k, coarse_dac_type, buff_coarse_Cu, fine_dac_type, buff_fine_Cu, .1250e-6, .0286e-6, .5e-15, 1.1e-15, buf_droop);
                 a.disp_ENOB;
                 buffy(i) = a.SNDR;
             end

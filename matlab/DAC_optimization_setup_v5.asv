@@ -1,0 +1,36 @@
+tic
+% k=2
+sam_p = 100;
+coarse_Cu = linspace(10e-15, 70e-15, sam_p);
+fine_Cu = linspace(10e-15, 22e-15, sam_p);
+min_energy_k = zeros(1,9);
+%coarse fine
+min_Cus = zeros(9,2);
+parfor k = 1:9
+    
+    min_energy = 1;
+    max_coarse_Cu = 0;
+    max_fine_Cu = 0;
+    a = DAC_fns(k, 0, 0);
+    
+    for j =1:sam_p
+        for i = 1:sam_p
+            buff_energy = a.FOM_prox([coarse_Cu(i) fine_Cu(j)]);
+            buff_ENOB = a.ENOB_prox([coarse_Cu(i) fine_Cu(j)]);
+            if (buff_energy < min_energy) and buff_ENOB >  
+                max_FOM = buff_FOM;
+                max_coarse_Cu = coarse_Cu(i);
+                max_fine_Cu = fine_Cu(j);
+            end
+        end
+    end
+    min_energy_k(k) = max_FOM;
+    min_Cus(k,:) = [max_coarse_Cu max_fine_Cu];
+end
+% max_FOM
+% max_coarse_Cu
+% max_fine_Cu
+
+best_k = find(min_energy_k == max(min_energy_k)) 
+
+toc
