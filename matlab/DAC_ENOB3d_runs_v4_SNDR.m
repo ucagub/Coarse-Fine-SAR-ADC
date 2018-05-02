@@ -8,7 +8,7 @@ coarse_dac_type = 'CS_DAC';
 
 tic
 samples = 1e2;
-sam_p = 10;
+sam_p = 20;
 
 buff_curve = zeros(sam_p,sam_p);
 
@@ -26,7 +26,7 @@ c_load = .4e-15;
 % droop = linspace(10e-6, 3e-3, sam_p);
 droop = 0;
 time_elapsed = 0;
-estimated_time = 2.2*sam_p^2*10*10;
+estimated_time = 2.2*sam_p^2*10;
 print_time(estimated_time);
 for surface = 1:length(fine_load_cap)
     buff_fine_load_cap = fine_load_cap(surface);
@@ -51,7 +51,7 @@ for surface = 1:length(fine_load_cap)
                 buffy = zeros([1 samples]);
                 
                 parfor i = 1:samples
-                    a = ADC(res, k, k, coarse_dac_type, buff_coarse_Cu, fine_dac_type, buff_fine_Cu, .1250e-6, .0286e-6, .5e-15, buff_fine_load_cap, buf_droop);
+                    a = ADC(res, k, k, coarse_dac_type, buff_coarse_Cu, fine_dac_type, buff_fine_Cu, .1250e-6, .0286e-6, .5e-15, .5e-15, buf_droop);
                     a.disp_ENOB;
                     buffy(i) = a.SNDR;
                 end
@@ -71,9 +71,9 @@ for surface = 1:length(fine_load_cap)
     end
 end
 
-label = ['cs-cs-3d-200ksps-loaded-with-noise-SNDR/katuparan_ng_pangarap.mat'];
+label = ['cs-cs-3d-50ksps-loaded-with-noise-SNDR/katuparan_ng_pangarap.mat'];
 save(label)
-label = ['cs-cs-3d-200ksps-loaded-with-noise-SNDR/katuparan_ng_pangarapv2.mat', 'surfaces'];
+label = ['cs-cs-3d-50ksps-loaded-with-noise-SNDR/katuparan_ng_pangarapv2.mat', 'surfaces'];
 save(label)
 disp('finished madafaka')
 

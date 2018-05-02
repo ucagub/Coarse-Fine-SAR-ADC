@@ -1,12 +1,12 @@
 tic
 % k=2
-sam_p = 200;
+sam_p = 1000;
 coarse_Cu = linspace(10e-15, 70e-15, sam_p);
 fine_Cu = linspace(10e-15, 22e-15, sam_p);
 min_energy_k = zeros(1,9);
 %coarse fine
 min_Cus = zeros(9,2);
-ENOB_constraint = 9.7
+ENOB_constraint = 9.1
 parfor k = 1:9
     
     min_energy = 1;

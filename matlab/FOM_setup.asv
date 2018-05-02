@@ -1,5 +1,0 @@
-
-
-function y = get_FOM(Energy/2)
-    y = SNDR + log10(1/(2*Energy))
-end

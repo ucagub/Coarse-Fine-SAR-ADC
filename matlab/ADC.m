@@ -271,7 +271,7 @@ classdef ADC < handle
 %                     obj.Emean = mean(obj.Etotal_dac);
 %                     obj.power = obj.Emean*8/1e-3;
 %                     obj.disp_ENOB;
-                    obj.disp_Emean;
+%                     obj.disp_Emean;
             
             end
 %             obj.ENOB = obj.get_ENOB();
@@ -376,7 +376,45 @@ classdef ADC < handle
                 y = obj.Emean;
             end
         end
+        function ENOB = get_ENOB_v2(obj)
+            Fs = 200e3;            % Sampling frequency                    
+            T = 1/Fs;             % Sampling period       
+            L = 2^9;             % Length of signal
+            t = (0:L-1)*T;        % Time vector
+            
+%             fs = 200e3;
 
+            f0 = 10e3;
+%             N = 2^9-1;
+%             t = (0:N-1)/fs;
+%             t = linspace(0,10/f0,N+1);
+%             t = t(1:end-1);
+            y = 0.5*sin(2*pi*f0*t) + 0.5;
+            z = zeros(1, length(y));
+            for i = 1:length(y)
+                z(i) = obj.quantizer(y(i));
+            end
+            figure;
+            plot(z)
+            Y = fft(z);
+%             Y = mean(buff_ffts);
+            f = Fs*(0:(L/2))/L;
+            P2 = abs(Y/L);
+            P1 = P2(1:L/2+1);
+            P1(2:end-1) = 2*P1(2:end-1);
+            figure;
+            plot(f,P1)
+            title('Single-Sided Amplitude Spectrum of S(t)')
+            xlabel('f (Hz)')
+            ylabel('|P1(f)|')
+            S = P1(find(f==f0));
+            buff = P1;
+            buff(1) = 0;
+            buff(find(f==f0)) = 0;
+            N = mean(buff);
+            SNDR = 20*log10(S/N);
+            ENOB = (SNDR-1.76)/6.02;
+        end
     end
     methods (Access = private)
         
@@ -398,7 +436,8 @@ classdef ADC < handle
         end
         function ENOB = get_ENOB(obj);
 %             fs = 3.17e4;
-            fs = 200e3;
+%             fs = 200e3;
+            fs = 50e3;
 %             fs = 5e4;
             
             f0 = 10e3;
@@ -430,6 +469,7 @@ classdef ADC < handle
             obj.SNDR = b;
             ENOB = (b-1.76)/6.02; 
         end
+        
         function y = get_noise(obj, load_cap)
             %returns the noise of a comparator given an input capacitance
             %of load_cap

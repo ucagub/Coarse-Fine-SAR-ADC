@@ -16,7 +16,7 @@ coarse_Cu = linspace(10e-15, 70e-15, sam_p);
 fine_Cu = linspace(10e-15, 22e-15, sam_p);
 coarse_noise = 0.2e-6;
 fine_noise = 0.2e-6;
-fine_load_cap = linspace(2.05e-16,1.75e-15, 10) + .29e-15;
+fine_load_cap = linspace(2.15e-16,1.75e-15, 10) + .29e-15;
 surfaces = {};
 
 %buffs for cauchy fit
@@ -45,30 +45,35 @@ for surface = 1:length(fine_load_cap)
             %     buf_c_load = c_load(j);
                 buf_c_load = c_load;
                 tic
+                surface
                 k
+                
                 buffy = zeros([1 samples]);
                 
                 parfor i = 1:samples
-                    a = ADC(res, k, k, coarse_dac_type, buff_coarse_Cu, fine_dac_type, buff_fine_Cu, .1250e-6, .0286e-6, .5e-15, buff_fine_load_cap, buf_droop);
+                    a = ADC(res, k, k, coarse_dac_type, buff_coarse_Cu, fine_dac_type, buff_fine_Cu, .1250e-6, .0286e-6, .5e-15, .5e-15, buff_fine_load_cap, buf_droop);
                     a.disp_ENOB;
                     buffy(i) = a.SNDR;
                 end
                 %cauchy fit part
+                close;
+                figure;
                 [a, b] = fit_cauchy(buffy);
+                a
                 buff_curve(j,z) = a;
                 toc
                 time_elapsed = toc + time_elapsed;
             end
         end
         toc
-        surfaces{surface, k} = buff_curve;
+        surfaces{surface, k+1} = buff_curve;
         buff_curve = zeros(sam_p,sam_p);
     end
 end
 
-label = ['cs-cs-3d-200ksps-loaded-with-noise-SNDR/katuparan_ng_pangarap.mat'];
+label = ['cs-cs-3d-50ksps-loaded-with-noise-SNDR/katuparan_ng_pangarap.mat'];
 save(label)
-label = ['cs-cs-3d-200ksps-loaded-with-noise-SNDR/katuparan_ng_pangarapv2.mat', 'surfaces'];
+label = ['cs-cs-3d-50ksps-loaded-with-noise-SNDR/katuparan_ng_pangarapv2.mat', 'surfaces'];
 save(label)
 disp('finished madafaka')
 

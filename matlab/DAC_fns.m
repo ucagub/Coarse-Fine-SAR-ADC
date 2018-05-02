@@ -21,8 +21,8 @@ classdef DAC_fns < handle
             obj.fs = 100e3;
             %cache cs energy factor
             load('cs_energy_k.mat', 'cs_coarse', 'cs_fine');
-            obj.cs_coarse_energy = cs_fine{k};
-            obj.cs_fine_energy = cs_coarse{k};
+            obj.cs_coarse_energy = sum(cs_fine{k});
+            obj.cs_fine_energy = sum(cs_coarse{k});
             load('cs_ENOB.mat', 'cs_ENOB');
             obj.cs_ENOB = cs_ENOB{k};
             load('cs-cs-3d-200ksps-loaded-with-noise-SNDR/katuparan_ng_pangarap.mat');
@@ -43,11 +43,16 @@ classdef DAC_fns < handle
             %output schreier FOM
             y = obj.SNDR_prox(u) + log10(obj.fs/(2*obj.energy_prox(u)));
         end
+        function y = FOM_walden_prox(obj, u)
+            %input: u = [coarse_Cu fine_Cu]
+            %output walden FOM
+            y = obj.energy_prox(u)/obj.ENOB_prox(u);
+        end
         function y = SNDR_prox(obj, u)
             %SNDR interpolation fit from simulation
             %input: u = [coarse_Cu fine_Cu]
             
-            y = interp2(obj.SNDR_mesh{1,1},obj.SNDR_mesh{1,2},obj.cs_SNDR,u(1),u(2));;
+            y = interp2(obj.SNDR_mesh{1,1},obj.SNDR_mesh{1,2},obj.cs_SNDR,u(1),u(2));
         end
 
 
@@ -56,6 +61,12 @@ classdef DAC_fns < handle
             %input: u = [coarse_Cu fine_Cu]
             
             y = obj.cs_ENOB(0.008/sqrt(u(1)/1e-15),0.008/sqrt(u(2)/1e-15));
+        end
+        function y = ENOB_prox_v2(obj, coarse_Cu, fine_Cu)
+            %ENOB fit from simulation
+            %input: u = [coarse_Cu fine_Cu]
+            
+            y = obj.cs_ENOB(0.008/sqrt(coarse_Cu/1e-15),0.008/sqrt(fine_Cu/1e-15));
         end
 
         
@@ -89,39 +100,49 @@ classdef DAC_fns < handle
         function y = energy_prox(obj, u)
             %input: u = [coarse_Cu fine_Cu]
            
-            y = sum(obj.cs_coarse_energy*u(1) + obj.cs_fine_energy*u(2));
+            y = obj.cs_coarse_energy*u(1) + obj.cs_fine_energy*u(2);
         end
-        function y = get_coarse_Cu(obj, energy, fine_Cu)
-            %returns the needed coarse Cu to get energy given fine_Cu
-            %inputs: energy and fine Cu
-%             sum(obj.cs_coarse_energy)
-%             sum(obj.cs_fine_energy)
-            y = (energy - sum(obj.cs_fine_energy)*fine_Cu)/sum(obj.cs_coarse_energy);
+        function y = energy_prox_v2(obj, coarse_Cu, fine_Cu)
+            %input: u = [coarse_Cu fine_Cu]
+           
+            y = obj.cs_coarse_energy*coarse_Cu + obj.cs_fine_energy*fine_Cu;
         end
-        function y = get_fine_Cu(obj, energy, coarse_Cu)
-            %returns the needed fine Cu to get energy given coarse_Cu
-            %inputs: energy and coarse Cu
-            
-            y = (energy - sum(obj.cs_coarse_energy)*coarse_Cu)/sum(obj.cs_fine_energy);
+        function y = energy_prox_v3(obj, coarse_Cu, fine_Cu)
+            %input: u = [coarse_Cu fine_Cu]
+           
+            y = gpuArray(obj.cs_coarse_energy)*coarse_Cu + gpuArray(obj.cs_fine_energy)*fine_Cu;
         end
-        function y = get_endpoints(obj)
-            buff_energy = obj.energy_prox([70e-15 10e-15]);
-            if obj.Ebudget < buff_energy
-                fine_Cu_left = 10e-15;
-                coarse_Cu_left = obj.get_coarse_Cu(obj.Ebudget, 10e-15);
-            else
-                fine_Cu_left = obj.get_fine_Cu(obj.Ebudget, 70e-15); 
-                coarse_Cu_left = 70e-15;
-            end
-            fine_Cu_right = obj.get_fine_Cu(obj.Ebudget, 10e-15);
-%             buff_energy_right = obj.energy_prox([10e-15 22e-15]);
-%             if obj.Ebudget > buff_energy_right
-%                 fine_Cu_right = 
+%         function y = get_coarse_Cu(obj, energy, fine_Cu)
+%             %returns the needed coarse Cu to get energy given fine_Cu
+%             %inputs: energy and fine Cu
+% %             sum(obj.cs_coarse_energy)
+% %             sum(obj.cs_fine_energy)
+%             y = (energy - sum(obj.cs_fine_energy)*fine_Cu)/sum(obj.cs_coarse_energy);
+%         end
+%         function y = get_fine_Cu(obj, energy, coarse_Cu)
+%             %returns the needed fine Cu to get energy given coarse_Cu
+%             %inputs: energy and coarse Cu
+%             
+%             y = (energy - sum(obj.cs_coarse_energy)*coarse_Cu)/sum(obj.cs_fine_energy);
+%         end
+%         function y = get_endpoints(obj)
+%             buff_energy = obj.energy_prox([70e-15 10e-15]);
+%             if obj.Ebudget < buff_energy
+%                 fine_Cu_left = 10e-15;
+%                 coarse_Cu_left = obj.get_coarse_Cu(obj.Ebudget, 10e-15);
 %             else
-%                 fine_Cu_right = obj.get_fine_Cu(obj.Ebudget, 10e-15);
+%                 fine_Cu_left = obj.get_fine_Cu(obj.Ebudget, 70e-15); 
+%                 coarse_Cu_left = 70e-15;
 %             end
-            
-            y = [coarse_Cu_left fine_Cu_left; 10e-15 fine_Cu_right];
-        end
+%             fine_Cu_right = obj.get_fine_Cu(obj.Ebudget, 10e-15);
+% %             buff_energy_right = obj.energy_prox([10e-15 22e-15]);
+% %             if obj.Ebudget > buff_energy_right
+% %                 fine_Cu_right = 
+% %             else
+% %                 fine_Cu_right = obj.get_fine_Cu(obj.Ebudget, 10e-15);
+% %             end
+%             
+%             y = [coarse_Cu_left fine_Cu_left; 10e-15 fine_Cu_right];
+%         end
     end
 end
